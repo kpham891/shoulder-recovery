@@ -142,7 +142,7 @@ export default function DashboardPage() {
 
   // Weekly stats
   const rehabSessions = completions.filter(c => c.kind === 'rehab').length;
-  const cardioMinutes = logs.filter(l => l.did_cardio).length * 30; // Estimate
+  const cardioMinutes = logs.filter(l => l.didCardio).length * 30; // Estimate
 
   const hasLoggedToday = latestLog && isToday(latestLog.date);
 
@@ -237,8 +237,8 @@ export default function DashboardPage() {
           <CardContent>
             {latestLog ? (
               <div className="text-sm">
-                <p>Flex: {latestLog.flexion_bucket || latestLog.flexionBucket}</p>
-                <p>Abd: {latestLog.abduction_bucket || latestLog.abductionBucket}</p>
+                <p>Flex: {latestLog.flexionBucket}</p>
+                <p>Abd: {latestLog.abductionBucket}</p>
               </div>
             ) : (
               <p className="text-sm text-gray-500">No logs yet</p>
