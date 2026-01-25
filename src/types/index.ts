@@ -53,33 +53,50 @@ export interface FitnessGoal {
 
 export interface UserProfile {
   id: string;
-  userId: string;
-  injurySide: InjurySide;
-  injuryDate: string; // ISO date
-  surgeryStatus: SurgeryStatus;
+  userId?: string;
+  user_id?: string;
+  injurySide?: InjurySide;
+  injury_side?: InjurySide;
+  injuryDate?: string; // ISO date
+  injury_date?: string;
+  surgeryStatus?: SurgeryStatus;
+  surgery_status?: SurgeryStatus;
   surgeryDate?: string; // ISO date
+  surgery_date?: string;
   restrictions: Restrictions;
   goal: FitnessGoal;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  created_at?: string;
+  updatedAt?: string;
+  updated_at?: string;
 }
 
 export interface DailyLog {
   id: string;
-  userId: string;
+  userId?: string;
+  user_id?: string;
   date: string; // ISO date
   pain: number; // 0-10
   instability: number; // 0-10 "feels like it could pop"
-  sleepImpact: number; // 0-10
-  flexionBucket: FlexionBucket;
-  abductionBucket: AbductionBucket;
-  behindBackReach: BehindBackReach;
-  slingWorn: boolean;
-  didRehab: boolean;
-  didCardio: boolean;
-  didStrength: boolean;
+  sleepImpact?: number; // 0-10
+  sleep_impact?: number;
+  flexionBucket?: FlexionBucket;
+  flexion_bucket?: FlexionBucket;
+  abductionBucket?: AbductionBucket;
+  abduction_bucket?: AbductionBucket;
+  behindBackReach?: BehindBackReach;
+  behind_back_reach?: BehindBackReach;
+  slingWorn?: boolean;
+  sling_worn?: boolean;
+  didRehab?: boolean;
+  did_rehab?: boolean;
+  didCardio?: boolean;
+  did_cardio?: boolean;
+  didStrength?: boolean;
+  did_strength?: boolean;
   notes?: string;
-  createdAt: string;
+  createdAt?: string;
+  created_at?: string;
 }
 
 export type MilestoneType =

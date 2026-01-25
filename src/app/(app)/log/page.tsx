@@ -160,7 +160,7 @@ export default function LogPage() {
                     {log.pain}
                   </div>
                   <div className="flex justify-center gap-1 mt-1">
-                    {log.did_rehab && <Check className="w-3 h-3 text-green-600" />}
+                    {(log.did_rehab || log.didRehab) && <Check className="w-3 h-3 text-green-600" />}
                   </div>
                 </div>
               ))}

@@ -17,7 +17,7 @@ import {
 import { exercises, getRehabExercises, getCardioExercises, getStrengthExercises } from './exercises';
 
 // Helper: convert bucket to approximate angle
-function bucketToAngle(bucket: FlexionBucket | AbductionBucket): number {
+function bucketToAngle(bucket: FlexionBucket | AbductionBucket | undefined): number {
   switch (bucket) {
     case '<60': return 30;
     case '60-90': return 75;
@@ -26,6 +26,32 @@ function bucketToAngle(bucket: FlexionBucket | AbductionBucket): number {
     case '150+': return 165;
     default: return 0;
   }
+}
+
+// Helper: get log property (handles both camelCase and snake_case from DB)
+function getLogFlexion(log: DailyLog): FlexionBucket | undefined {
+  return log.flexionBucket || log.flexion_bucket;
+}
+
+function getLogAbduction(log: DailyLog): AbductionBucket | undefined {
+  return log.abductionBucket || log.abduction_bucket;
+}
+
+function getLogSleepImpact(log: DailyLog): number {
+  return log.sleepImpact ?? log.sleep_impact ?? 0;
+}
+
+function getLogSlingWorn(log: DailyLog): boolean {
+  return log.slingWorn ?? log.sling_worn ?? false;
+}
+
+// Helper: get profile property (handles both camelCase and snake_case)
+function getProfileInjuryDate(profile: UserProfile): string {
+  return profile.injuryDate || profile.injury_date || new Date().toISOString();
+}
+
+function getProfileSurgeryDate(profile: UserProfile): string | undefined {
+  return profile.surgeryDate || profile.surgery_date;
 }
 
 // Helper: weeks since a date
@@ -48,8 +74,9 @@ function daysUntil(dateStr: string): number {
  * Determine current recovery stage based on profile and logs
  */
 export function currentRecoveryStage(profile: UserProfile, logs: DailyLog[]): RecoveryStage {
-  const weeksSinceInjury = weeksSince(profile.injuryDate);
-  const weeksSinceSurgery = profile.surgeryDate ? weeksSince(profile.surgeryDate) : null;
+  const weeksSinceInjury = weeksSince(getProfileInjuryDate(profile));
+  const surgeryDate = getProfileSurgeryDate(profile);
+  const weeksSinceSurgery = surgeryDate ? weeksSince(surgeryDate) : null;
 
   // Use surgery date if post-op, otherwise injury date
   const weeksRecovering = weeksSinceSurgery ?? weeksSinceInjury;
@@ -61,8 +88,8 @@ export function currentRecoveryStage(profile: UserProfile, logs: DailyLog[]): Re
     : 5;
 
   const latestLog = recentLogs[recentLogs.length - 1];
-  const latestFlexion = latestLog ? bucketToAngle(latestLog.flexionBucket) : 30;
-  const latestAbduction = latestLog ? bucketToAngle(latestLog.abductionBucket) : 30;
+  const latestFlexion = latestLog ? bucketToAngle(getLogFlexion(latestLog)) : 30;
+  const latestAbduction = latestLog ? bucketToAngle(getLogAbduction(latestLog)) : 30;
 
   // Stage determination logic
   // Acute: 0-2 weeks post-injury/surgery OR still in sling OR high pain
@@ -97,7 +124,7 @@ export function allowedActivities(profile: UserProfile, latestLog: DailyLog | nu
   const isDeloadWeek = latestLog !== null && (
     latestLog.pain >= 7 ||
     latestLog.instability >= 7 ||
-    latestLog.sleepImpact >= 8
+    getLogSleepImpact(latestLog) >= 8
   );
 
   if (isDeloadWeek) {
@@ -200,8 +227,8 @@ export function rehabPlan(
   const rehabExercises = getRehabExercises();
   const selectedExercises: WorkoutExercise[] = [];
 
-  const currentFlexion = latestLog ? bucketToAngle(latestLog.flexionBucket) : 30;
-  const currentAbduction = latestLog ? bucketToAngle(latestLog.abductionBucket) : 30;
+  const currentFlexion = latestLog ? bucketToAngle(getLogFlexion(latestLog)) : 30;
+  const currentAbduction = latestLog ? bucketToAngle(getLogAbduction(latestLog)) : 30;
   const currentPain = latestLog?.pain ?? 5;
 
   // Filter exercises that are appropriate for current ROM and limitations
@@ -296,7 +323,7 @@ export function fitnessPlan(
   const goal = profile.goal;
 
   // Calculate current week number in training
-  const weeksSinceStart = weeksSince(profile.createdAt);
+  const weeksSinceStart = weeksSince(profile.createdAt || profile.created_at || new Date().toISOString());
   const weekNumber = weeksSinceStart + 1;
 
   // Days until goal (if set)
@@ -355,7 +382,7 @@ export function fitnessPlan(
     if (!allowed.cardio.includes(ex.id.replace('-no-arms', '').replace('-light', '') as CardioType)) {
       return false;
     }
-    if (ex.minFlexionAngle > (latestLog ? bucketToAngle(latestLog.flexionBucket) : 30)) {
+    if (ex.minFlexionAngle > (latestLog ? bucketToAngle(getLogFlexion(latestLog)) : 30)) {
       return false;
     }
     return true;
@@ -366,7 +393,7 @@ export function fitnessPlan(
     if (ex.targetArea === 'shoulder') return false;
     if (ex.requiresOverhead && !allowed.canDoOverhead) return false;
     if (ex.requiresShoulderLoading && profile.restrictions.inSling) return false;
-    if (ex.minFlexionAngle > (latestLog ? bucketToAngle(latestLog.flexionBucket) : 30)) {
+    if (ex.minFlexionAngle > (latestLog ? bucketToAngle(getLogFlexion(latestLog)) : 30)) {
       return false;
     }
     return true;
@@ -475,8 +502,8 @@ export function suggestNextMilestone(
     return 'Complete your first daily log to track progress';
   }
 
-  const flexion = bucketToAngle(latestLog.flexionBucket);
-  const abduction = bucketToAngle(latestLog.abductionBucket);
+  const flexion = bucketToAngle(getLogFlexion(latestLog));
+  const abduction = bucketToAngle(getLogAbduction(latestLog));
 
   if (flexion < 90) {
     return 'Work toward forward flexion to 90 degrees';
@@ -490,10 +517,10 @@ export function suggestNextMilestone(
   if (abduction < 120) {
     return 'Work toward abduction to 120 degrees';
   }
-  if (latestLog.slingWorn) {
+  if (getLogSlingWorn(latestLog)) {
     return 'First day without sling (when cleared by provider)';
   }
-  if (latestLog.sleepImpact > 3) {
+  if (getLogSleepImpact(latestLog) > 3) {
     return 'Work toward pain-free sleep';
   }
   if (!profile.restrictions.noRunning && latestLog.pain <= 3) {
@@ -516,8 +543,8 @@ export function shouldProgress(logs: DailyLog[]): boolean {
   if (avgPain > 3) return false;
 
   // Check for ROM improvement
-  const oldFlexion = bucketToAngle(recent[0].flexionBucket);
-  const newFlexion = bucketToAngle(recent[recent.length - 1].flexionBucket);
+  const oldFlexion = bucketToAngle(getLogFlexion(recent[0]));
+  const newFlexion = bucketToAngle(getLogFlexion(recent[recent.length - 1]));
 
   return newFlexion >= oldFlexion;
 }

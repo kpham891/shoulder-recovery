@@ -76,8 +76,8 @@ export default function SettingsPage() {
       setProfile(p);
 
       // Populate form
-      setInjurySide(p.injurySide || p.injury_side);
-      setSurgeryStatus(p.surgeryStatus || p.surgery_status);
+      setInjurySide(p.injurySide || p.injury_side || 'right');
+      setSurgeryStatus(p.surgeryStatus || p.surgery_status || 'none');
       setInjuryDate(p.injuryDate || p.injury_date || '');
       setSurgeryDate(p.surgeryDate || p.surgery_date || '');
 
