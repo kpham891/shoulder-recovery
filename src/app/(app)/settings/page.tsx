@@ -170,7 +170,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-pulse text-gray-500">Loading...</div>
+        <div className="animate-pulse text-gray-500 dark:text-gray-400">Loading...</div>
       </div>
     );
   }
@@ -178,11 +178,11 @@ export default function SettingsPage() {
   return (
     <div className="p-4 md:p-8 max-w-2xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Settings className="w-6 h-6 text-gray-600" />
+        <h1 className="text-2xl font-bold flex items-center gap-2 dark:text-white">
+          <Settings className="w-6 h-6 text-gray-600 dark:text-gray-400" />
           Settings
         </h1>
-        <p className="text-gray-600">Update your profile and preferences</p>
+        <p className="text-gray-600 dark:text-gray-400">Update your profile and preferences</p>
       </div>
 
       <div className="space-y-6">
@@ -383,8 +383,8 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div className="border-t pt-4">
-              <p className="text-sm font-medium mb-3">Cardio baseline</p>
+            <div className="border-t dark:border-gray-700 pt-4">
+              <p className="text-sm font-medium mb-3 dark:text-white">Cardio baseline</p>
               <div className="space-y-3">
                 <div>
                   <Label className="text-sm">Can bike: {canBike[0]} min</Label>

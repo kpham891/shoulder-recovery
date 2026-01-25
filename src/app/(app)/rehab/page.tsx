@@ -117,7 +117,7 @@ export default function RehabPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-pulse text-gray-500">Loading...</div>
+        <div className="animate-pulse text-gray-500 dark:text-gray-400">Loading...</div>
       </div>
     );
   }
@@ -131,20 +131,20 @@ export default function RehabPage() {
   return (
     <div className="p-4 md:p-8 max-w-2xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Activity className="w-6 h-6 text-blue-600" />
+        <h1 className="text-2xl font-bold flex items-center gap-2 dark:text-white">
+          <Activity className="w-6 h-6 text-blue-600 dark:text-blue-400" />
           Rehab Workout
         </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           Stage: <span className="font-medium capitalize">{stage.replace('-', ' ')}</span>
         </p>
       </div>
 
       {/* Safety disclaimer */}
-      <Card className="mb-6 border-amber-200 bg-amber-50">
+      <Card className="mb-6 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/30">
         <CardContent className="py-3 flex items-start gap-3">
-          <Shield className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-amber-800">
+          <Shield className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-amber-800 dark:text-amber-200">
             Only do what your PT/surgeon has cleared. Stop any exercise that causes sharp pain.
           </p>
         </CardContent>
@@ -163,7 +163,7 @@ export default function RehabPage() {
                 </div>
               </div>
               {workout.notes && (
-                <CardDescription className="text-amber-600">{workout.notes}</CardDescription>
+                <CardDescription className="text-amber-600 dark:text-amber-400">{workout.notes}</CardDescription>
               )}
             </CardHeader>
             <CardContent>
@@ -183,7 +183,7 @@ export default function RehabPage() {
               return (
                 <Card
                   key={we.exercise.id}
-                  className={isCompleted ? 'border-green-200 bg-green-50' : ''}
+                  className={isCompleted ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/30' : ''}
                 >
                   <CardContent className="py-4">
                     <div className="flex items-start gap-4">
@@ -199,22 +199,22 @@ export default function RehabPage() {
                         <Label
                           htmlFor={we.exercise.id}
                           className={`text-base font-medium cursor-pointer ${
-                            isCompleted ? 'line-through text-gray-500' : ''
+                            isCompleted ? 'line-through text-gray-500 dark:text-gray-400' : 'dark:text-white'
                           }`}
                         >
                           {index + 1}. {we.exercise.name}
                         </Label>
-                        <p className="text-sm text-blue-600 mt-1">
+                        <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
                           {we.sets} sets
                           {we.reps && ` × ${we.reps} reps`}
                           {we.duration && ` × ${we.duration}`}
                         </p>
-                        <p className="text-sm text-gray-600 mt-2">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                           {we.exercise.instructions}
                         </p>
                       </div>
                       {isCompleted && (
-                        <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
+                        <Check className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
                       )}
                     </div>
                   </CardContent>
@@ -246,7 +246,7 @@ export default function RehabPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <ul className="text-sm text-gray-600 space-y-2">
+          <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
             <li>• Warm up with gentle arm movements before starting</li>
             <li>• Move slowly and controlled - no jerky movements</li>
             <li>• Breathe normally throughout each exercise</li>

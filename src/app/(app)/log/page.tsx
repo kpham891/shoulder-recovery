@@ -131,11 +131,11 @@ export default function LogPage() {
     <div className="p-4 md:p-8 max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Daily Log</h1>
-          <p className="text-gray-600">Track how you&apos;re feeling today</p>
+          <h1 className="text-2xl font-bold dark:text-white">Daily Log</h1>
+          <p className="text-gray-600 dark:text-gray-400">Track how you&apos;re feeling today</p>
         </div>
         {streak > 0 && (
-          <div className="flex items-center gap-2 bg-orange-50 text-orange-600 px-3 py-2 rounded-lg">
+          <div className="flex items-center gap-2 bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-3 py-2 rounded-lg">
             <Flame className="w-5 h-5" />
             <span className="font-medium">{streak} day streak!</span>
           </div>
@@ -146,7 +146,7 @@ export default function LogPage() {
       {recentLogs.length > 0 && (
         <Card className="mb-6">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Last 7 days</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Last 7 days</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex gap-2 overflow-x-auto pb-2">
@@ -155,12 +155,12 @@ export default function LogPage() {
                   key={log.id}
                   className={`flex-shrink-0 w-16 p-2 rounded-lg text-center ${getPainBgColor(log.pain)}`}
                 >
-                  <div className="text-xs text-gray-500">{formatDateShort(log.date)}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{formatDateShort(log.date)}</div>
                   <div className={`text-lg font-bold ${getPainColor(log.pain)}`}>
                     {log.pain}
                   </div>
                   <div className="flex justify-center gap-1 mt-1">
-                    {(log.did_rehab || log.didRehab) && <Check className="w-3 h-3 text-green-600" />}
+                    {(log.did_rehab || log.didRehab) && <Check className="w-3 h-3 text-green-600 dark:text-green-400" />}
                   </div>
                 </div>
               ))}
@@ -207,7 +207,7 @@ export default function LogPage() {
                 step={1}
                 className="py-4"
               />
-              <div className="flex justify-between text-xs text-gray-500">
+              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                 <span>No pain</span>
                 <span>Worst</span>
               </div>
@@ -217,7 +217,7 @@ export default function LogPage() {
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <Label>&quot;Feels like it could pop&quot;</Label>
-                <span className="text-lg font-bold text-gray-700">{instability[0]}/10</span>
+                <span className="text-lg font-bold text-gray-700 dark:text-gray-300">{instability[0]}/10</span>
               </div>
               <Slider
                 value={instability}
@@ -227,7 +227,7 @@ export default function LogPage() {
                 step={1}
                 className="py-4"
               />
-              <div className="flex justify-between text-xs text-gray-500">
+              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                 <span>Stable</span>
                 <span>Very unstable</span>
               </div>
@@ -237,7 +237,7 @@ export default function LogPage() {
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <Label>Sleep Impact</Label>
-                <span className="text-lg font-bold text-gray-700">{sleepImpact[0]}/10</span>
+                <span className="text-lg font-bold text-gray-700 dark:text-gray-300">{sleepImpact[0]}/10</span>
               </div>
               <Slider
                 value={sleepImpact}
@@ -247,7 +247,7 @@ export default function LogPage() {
                 step={1}
                 className="py-4"
               />
-              <div className="flex justify-between text-xs text-gray-500">
+              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                 <span>Slept well</span>
                 <span>Couldn&apos;t sleep</span>
               </div>

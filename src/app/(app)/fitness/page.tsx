@@ -149,7 +149,7 @@ export default function FitnessPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-pulse text-gray-500">Loading...</div>
+        <div className="animate-pulse text-gray-500 dark:text-gray-400">Loading...</div>
       </div>
     );
   }
@@ -164,11 +164,11 @@ export default function FitnessPage() {
   return (
     <div className="p-4 md:p-8 max-w-2xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Dumbbell className="w-6 h-6 text-blue-600" />
+        <h1 className="text-2xl font-bold flex items-center gap-2 dark:text-white">
+          <Dumbbell className="w-6 h-6 text-blue-600 dark:text-blue-400" />
           Fitness Workouts
         </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           Goal: <span className="font-medium capitalize">
             {profile?.goal.type.replace('-', ' ') || 'General conditioning'}
           </span>
@@ -176,10 +176,10 @@ export default function FitnessPage() {
       </div>
 
       {/* Safety disclaimer */}
-      <Card className="mb-6 border-amber-200 bg-amber-50">
+      <Card className="mb-6 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/30">
         <CardContent className="py-3 flex items-start gap-3">
-          <Shield className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-amber-800">
+          <Shield className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-amber-800 dark:text-amber-200">
             These workouts respect your shoulder restrictions. Stop if you experience any shoulder pain.
           </p>
         </CardContent>
@@ -187,12 +187,12 @@ export default function FitnessPage() {
 
       {/* Deload warning */}
       {allowed?.isDeloadWeek && (
-        <Card className="mb-6 border-red-200 bg-red-50">
+        <Card className="mb-6 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30">
           <CardContent className="py-3 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-red-800">Deload Week Recommended</p>
-              <p className="text-sm text-red-700">
+              <p className="text-sm font-medium text-red-800 dark:text-red-200">Deload Week Recommended</p>
+              <p className="text-sm text-red-700 dark:text-red-300">
                 Your recent logs show elevated pain or instability. Take it easy this week.
               </p>
             </div>
@@ -221,13 +221,13 @@ export default function FitnessPage() {
                   </div>
                   <CardDescription className="flex items-center gap-2">
                     <span className={`px-2 py-0.5 rounded text-xs ${
-                      todayWorkout.intensity === 'easy' ? 'bg-green-100 text-green-700' :
-                      todayWorkout.intensity === 'moderate' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-red-100 text-red-700'
+                      todayWorkout.intensity === 'easy' ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400' :
+                      todayWorkout.intensity === 'moderate' ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400' :
+                      'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400'
                     }`}>
                       {todayWorkout.intensity}
                     </span>
-                    <span className="capitalize">{todayWorkout.type}</span>
+                    <span className="capitalize dark:text-gray-300">{todayWorkout.type}</span>
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -251,7 +251,7 @@ export default function FitnessPage() {
                   return (
                     <Card
                       key={we.exercise.id}
-                      className={isCompleted ? 'border-green-200 bg-green-50' : ''}
+                      className={isCompleted ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/30' : ''}
                     >
                       <CardContent className="py-4">
                         <div className="flex items-start gap-4">
@@ -267,23 +267,23 @@ export default function FitnessPage() {
                             <Label
                               htmlFor={we.exercise.id}
                               className={`text-base font-medium cursor-pointer flex items-center gap-2 ${
-                                isCompleted ? 'line-through text-gray-500' : ''
+                                isCompleted ? 'line-through text-gray-500 dark:text-gray-400' : 'dark:text-white'
                               }`}
                             >
                               <Icon className="w-4 h-4" />
                               {index + 1}. {we.exercise.name}
                             </Label>
-                            <p className="text-sm text-blue-600 mt-1">
+                            <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
                               {we.sets > 1 ? `${we.sets} sets × ` : ''}
                               {we.reps && `${we.reps} reps`}
                               {we.duration && we.duration}
                             </p>
-                            <p className="text-sm text-gray-600 mt-2">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                               {we.exercise.instructions}
                             </p>
                           </div>
                           {isCompleted && (
-                            <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
+                            <Check className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
                           )}
                         </div>
                       </CardContent>
@@ -306,9 +306,9 @@ export default function FitnessPage() {
           ) : (
             <Card>
               <CardContent className="py-8 text-center">
-                <Target className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600">No fitness workout scheduled for today.</p>
-                <p className="text-sm text-gray-500 mt-1">Check the weekly plan for upcoming workouts.</p>
+                <Target className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-600 dark:text-gray-400">No fitness workout scheduled for today.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">Check the weekly plan for upcoming workouts.</p>
               </CardContent>
             </Card>
           )}
@@ -338,17 +338,17 @@ export default function FitnessPage() {
                       key={day}
                       className={`p-2 rounded-lg text-center ${
                         isToday ? 'ring-2 ring-blue-500' : ''
-                      } ${workout ? 'bg-blue-50' : 'bg-gray-50'}`}
+                      } ${workout ? 'bg-blue-50 dark:bg-blue-900/30' : 'bg-gray-50 dark:bg-gray-800'}`}
                     >
-                      <p className="text-xs font-medium text-gray-500">{dayNames[day]}</p>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400">{dayNames[day]}</p>
                       {workout?.fitness ? (
                         <div className="mt-1">
                           {workout.fitness.type === 'cardio' ? (
-                            <Bike className="w-5 h-5 mx-auto text-blue-600" />
+                            <Bike className="w-5 h-5 mx-auto text-blue-600 dark:text-blue-400" />
                           ) : (
-                            <Dumbbell className="w-5 h-5 mx-auto text-blue-600" />
+                            <Dumbbell className="w-5 h-5 mx-auto text-blue-600 dark:text-blue-400" />
                           )}
-                          <p className="text-xs mt-1 truncate">{workout.fitness.name}</p>
+                          <p className="text-xs mt-1 truncate dark:text-gray-300">{workout.fitness.name}</p>
                         </div>
                       ) : (
                         <p className="text-xs text-gray-400 mt-2">Rest</p>
@@ -364,18 +364,18 @@ export default function FitnessPage() {
                   const isToday = new Date().getDay() === day;
 
                   return (
-                    <Card key={day} className={isToday ? 'border-blue-200' : ''}>
+                    <Card key={day} className={isToday ? 'border-blue-200 dark:border-blue-800' : ''}>
                       <CardContent className="py-3 flex items-center justify-between">
                         <div>
-                          <p className="font-medium">
+                          <p className="font-medium dark:text-white">
                             {dayNames[day]}: {fitness.name}
                           </p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
                             {fitness.totalDuration} | {fitness.intensity}
                           </p>
                         </div>
                         {isToday && (
-                          <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">
+                          <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 text-xs rounded">
                             Today
                           </span>
                         )}
@@ -399,20 +399,20 @@ export default function FitnessPage() {
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm font-medium mb-2">Cardio</p>
+                <p className="text-sm font-medium mb-2 dark:text-white">Cardio</p>
                 <div className="flex flex-wrap gap-2">
                   {allowed.cardio.map(c => (
-                    <span key={c} className="px-2 py-1 bg-green-100 text-green-700 rounded text-sm capitalize">
+                    <span key={c} className="px-2 py-1 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 rounded text-sm capitalize">
                       {c}
                     </span>
                   ))}
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium mb-2">Strength</p>
+                <p className="text-sm font-medium mb-2 dark:text-white">Strength</p>
                 <div className="flex flex-wrap gap-2">
                   {allowed.strength.map(s => (
-                    <span key={s} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-sm capitalize">
+                    <span key={s} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 rounded text-sm capitalize">
                       {s}
                     </span>
                   ))}

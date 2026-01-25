@@ -151,7 +151,7 @@ export default function MilestonesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-pulse text-gray-500">Loading...</div>
+        <div className="animate-pulse text-gray-500 dark:text-gray-400">Loading...</div>
       </div>
     );
   }
@@ -160,11 +160,11 @@ export default function MilestonesPage() {
     <div className="p-4 md:p-8 max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
+          <h1 className="text-2xl font-bold flex items-center gap-2 dark:text-white">
             <Trophy className="w-6 h-6 text-yellow-500" />
             Milestones
           </h1>
-          <p className="text-gray-600">Celebrate your recovery achievements</p>
+          <p className="text-gray-600 dark:text-gray-400">Celebrate your recovery achievements</p>
         </div>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -265,9 +265,9 @@ export default function MilestonesPage() {
       {milestones.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <Trophy className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-600 mb-2">No milestones recorded yet</p>
-            <p className="text-sm text-gray-500">
+            <Trophy className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400 mb-2">No milestones recorded yet</p>
+            <p className="text-sm text-gray-500 dark:text-gray-500">
               Add your first milestone to start tracking your progress
             </p>
           </CardContent>
@@ -275,12 +275,12 @@ export default function MilestonesPage() {
       ) : (
         <div className="space-y-4">
           {/* Summary stats */}
-          <Card className="bg-gradient-to-r from-yellow-50 to-orange-50">
+          <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/30 dark:to-orange-900/30">
             <CardContent className="py-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-3xl font-bold text-yellow-600">{milestones.length}</p>
-                  <p className="text-sm text-gray-600">milestones achieved</p>
+                  <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">{milestones.length}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">milestones achieved</p>
                 </div>
                 <Trophy className="w-10 h-10 text-yellow-500" />
               </div>
@@ -289,7 +289,7 @@ export default function MilestonesPage() {
 
           {/* Timeline */}
           <div className="relative">
-            <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200" />
+            <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700" />
             <div className="space-y-4">
               {milestones.map((milestone) => (
                 <div key={milestone.id} className="relative flex items-start gap-4 pl-12">
@@ -300,7 +300,7 @@ export default function MilestonesPage() {
                     <CardHeader className="pb-2">
                       <div className="flex items-start justify-between">
                         <div>
-                          <CardTitle className="text-base">
+                          <CardTitle className="text-base dark:text-white">
                             {milestone.type === 'custom'
                               ? milestone.value
                               : getMilestoneLabel(milestone.type)}
@@ -316,7 +316,7 @@ export default function MilestonesPage() {
                     </CardHeader>
                     {milestone.notes && (
                       <CardContent className="pt-0">
-                        <p className="text-sm text-gray-600">{milestone.notes}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{milestone.notes}</p>
                       </CardContent>
                     )}
                   </Card>
@@ -342,8 +342,8 @@ export default function MilestonesPage() {
                   key={m.value}
                   className={`px-3 py-1 rounded-full text-sm ${
                     achieved
-                      ? 'bg-green-100 text-green-700 line-through'
-                      : 'bg-gray-100 text-gray-600'
+                      ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 line-through'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                   }`}
                 >
                   {achieved && '✓ '}

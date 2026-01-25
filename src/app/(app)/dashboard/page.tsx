@@ -119,7 +119,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-pulse text-gray-500">Loading...</div>
+        <div className="animate-pulse text-gray-500 dark:text-gray-400">Loading...</div>
       </div>
     );
   }
@@ -150,13 +150,13 @@ export default function DashboardPage() {
     <div className="p-4 md:p-8 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-gray-600">
+          <h1 className="text-2xl font-bold dark:text-white">Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-400">
             Stage: <span className="font-medium capitalize">{stage.replace('-', ' ')}</span>
           </p>
         </div>
         {streak > 0 && (
-          <div className="flex items-center gap-2 bg-orange-50 text-orange-600 px-3 py-2 rounded-lg">
+          <div className="flex items-center gap-2 bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-3 py-2 rounded-lg">
             <Flame className="w-5 h-5" />
             <span className="font-medium">{streak} day streak</span>
           </div>
@@ -165,13 +165,13 @@ export default function DashboardPage() {
 
       {/* Quick action */}
       {!hasLoggedToday && (
-        <Card className="mb-6 border-blue-200 bg-blue-50">
+        <Card className="mb-6 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/30">
           <CardContent className="flex items-center justify-between py-4">
             <div className="flex items-center gap-3">
-              <Calendar className="w-8 h-8 text-blue-600" />
+              <Calendar className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               <div>
-                <p className="font-medium">Log how you&apos;re feeling today</p>
-                <p className="text-sm text-gray-600">Takes less than 60 seconds</p>
+                <p className="font-medium dark:text-white">Log how you&apos;re feeling today</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Takes less than 60 seconds</p>
               </div>
             </div>
             <Link href="/log">
@@ -213,7 +213,7 @@ export default function DashboardPage() {
               <Activity className="w-5 h-5 text-blue-600" />
               <span className="text-2xl font-bold">{rehabSessions}</span>
             </div>
-            <p className="text-xs text-gray-500 mt-1">sessions completed</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">sessions completed</p>
           </CardContent>
         </Card>
 
@@ -226,7 +226,7 @@ export default function DashboardPage() {
               <Dumbbell className="w-5 h-5 text-blue-600" />
               <span className="text-2xl font-bold">~{cardioMinutes}</span>
             </div>
-            <p className="text-xs text-gray-500 mt-1">minutes estimated</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">minutes estimated</p>
           </CardContent>
         </Card>
 
@@ -236,12 +236,12 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {latestLog ? (
-              <div className="text-sm">
+              <div className="text-sm dark:text-gray-300">
                 <p>Flex: {latestLog.flexionBucket}</p>
                 <p>Abd: {latestLog.abductionBucket}</p>
               </div>
             ) : (
-              <p className="text-sm text-gray-500">No logs yet</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">No logs yet</p>
             )}
           </CardContent>
         </Card>
@@ -256,7 +256,7 @@ export default function DashboardPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-700">{nextMilestone}</p>
+          <p className="text-gray-700 dark:text-gray-300">{nextMilestone}</p>
           <Link href="/milestones">
             <Button variant="outline" size="sm" className="mt-3">
               View All Milestones
@@ -275,20 +275,20 @@ export default function DashboardPage() {
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm font-medium mb-2">Cardio Options</p>
+                <p className="text-sm font-medium mb-2 dark:text-white">Cardio Options</p>
                 <div className="flex flex-wrap gap-2">
                   {allowed.cardio.map(c => (
-                    <span key={c} className="px-2 py-1 bg-green-100 text-green-700 rounded text-sm">
+                    <span key={c} className="px-2 py-1 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 rounded text-sm">
                       {c}
                     </span>
                   ))}
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium mb-2">Strength Areas</p>
+                <p className="text-sm font-medium mb-2 dark:text-white">Strength Areas</p>
                 <div className="flex flex-wrap gap-2">
                   {allowed.strength.map(s => (
-                    <span key={s} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-sm">
+                    <span key={s} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 rounded text-sm">
                       {s}
                     </span>
                   ))}
@@ -296,12 +296,12 @@ export default function DashboardPage() {
               </div>
             </div>
             {allowed.isDeloadWeek && (
-              <div className="mt-4 p-3 bg-amber-50 rounded-md text-sm text-amber-800">
+              <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/30 rounded-md text-sm text-amber-800 dark:text-amber-200">
                 Deload week recommended - pain or instability is elevated. Take it easy.
               </div>
             )}
             {allowed.notes.length > 0 && (
-              <ul className="mt-3 text-sm text-gray-600 space-y-1">
+              <ul className="mt-3 text-sm text-gray-600 dark:text-gray-400 space-y-1">
                 {allowed.notes.map((note, i) => (
                   <li key={i}>• {note}</li>
                 ))}
@@ -319,17 +319,17 @@ export default function DashboardPage() {
         <CardContent>
           <div className="space-y-4">
             {logs.slice(0, 5).map(log => (
-              <div key={log.id} className="flex items-start gap-3 pb-3 border-b last:border-0">
+              <div key={log.id} className="flex items-start gap-3 pb-3 border-b dark:border-gray-700 last:border-0">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                  log.pain <= 3 ? 'bg-green-100 text-green-700' :
-                  log.pain <= 6 ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-red-100 text-red-700'
+                  log.pain <= 3 ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400' :
+                  log.pain <= 6 ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400' :
+                  'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400'
                 }`}>
                   {log.pain}
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium">{formatDateShort(log.date)}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-sm font-medium dark:text-white">{formatDateShort(log.date)}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     Pain: {log.pain}/10 | Flex: {log.flexion_bucket || log.flexionBucket}
                     {(log.did_rehab || log.didRehab) && ' | Did rehab'}
                     {(log.did_cardio || log.didCardio) && ' | Did cardio'}
@@ -338,13 +338,13 @@ export default function DashboardPage() {
               </div>
             ))}
             {milestones.slice(0, 3).map(m => (
-              <div key={m.id} className="flex items-start gap-3 pb-3 border-b last:border-0">
-                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                  <Trophy className="w-4 h-4 text-purple-600" />
+              <div key={m.id} className="flex items-start gap-3 pb-3 border-b dark:border-gray-700 last:border-0">
+                <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
+                  <Trophy className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium">{formatDateShort(m.date)}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-sm font-medium dark:text-white">{formatDateShort(m.date)}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     Milestone: {m.type.replace(/-/g, ' ')}
                     {m.value && ` - ${m.value}`}
                   </p>
@@ -353,7 +353,7 @@ export default function DashboardPage() {
             ))}
           </div>
           {logs.length === 0 && milestones.length === 0 && (
-            <p className="text-gray-500 text-center py-4">
+            <p className="text-gray-500 dark:text-gray-400 text-center py-4">
               No activity yet. Start by logging how you feel today!
             </p>
           )}
