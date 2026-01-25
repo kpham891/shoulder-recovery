@@ -142,7 +142,7 @@ export default function DashboardPage() {
 
   // Weekly stats
   const rehabSessions = completions.filter(c => c.kind === 'rehab').length;
-  const cardioMinutes = logs.filter(l => l.didCardio).length * 30; // Estimate
+  const cardioMinutes = logs.filter(l => l.did_cardio || l.didCardio).length * 30; // Estimate
 
   const hasLoggedToday = latestLog && isToday(latestLog.date);
 
@@ -331,8 +331,8 @@ export default function DashboardPage() {
                   <p className="text-sm font-medium">{formatDateShort(log.date)}</p>
                   <p className="text-xs text-gray-500">
                     Pain: {log.pain}/10 | Flex: {log.flexion_bucket || log.flexionBucket}
-                    {log.did_rehab && ' | Did rehab'}
-                    {log.did_cardio && ' | Did cardio'}
+                    {(log.did_rehab || log.didRehab) && ' | Did rehab'}
+                    {(log.did_cardio || log.didCardio) && ' | Did cardio'}
                   </p>
                 </div>
               </div>
