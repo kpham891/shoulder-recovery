@@ -100,7 +100,6 @@ export default function DrinksPage() {
       category: fav.category,
       volume_ml: vol,
       abv_percent: abv,
-      standard_units: units,
     });
 
     if (error) {

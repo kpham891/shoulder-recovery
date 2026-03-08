@@ -97,7 +97,6 @@ export default function LogDrinkPage() {
       category: selectedCategory,
       volume_ml: volumeMl,
       abv_percent: abvPercent,
-      standard_units: units,
       notes: notes || null,
     });
 
