@@ -6,9 +6,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet';
+import { ArrowLeft, ChevronLeft, ChevronRight, Info, Trash2, Plus } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { DrinkLog, DrinkGoal } from '@/types';
+import { formatTime } from '@/lib/drinks';
+import { CATEGORY_EMOJI } from '@/lib/drinks-library';
+import { displayUnits } from '@/lib/units-calculator';
 import {
   BarChart,
   Bar,
@@ -62,6 +73,22 @@ function daysAgo(n: number): Date {
   return d;
 }
 
+/** Get total standard drinks for a log entry, accounting for quantity */
+function getLogDrinks(l: DrinkLog): number {
+  const units = l.standard_units ?? l.standardUnits ?? 0;
+  const qty = l.quantity ?? 1;
+  // The DB generated column already includes quantity, but if standard_units
+  // was computed without quantity (legacy rows), multiply here as safety net.
+  // If standard_units already includes qty, the entry will have qty=1 or
+  // standard_units will already reflect the full amount.
+  return units * qty;
+}
+
+function formatDateLabel(dateKey: string): string {
+  const d = new Date(dateKey + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
 export default function InsightsPage() {
   const [logs, setLogs] = useState<DrinkLog[]>([]);
   const [goal, setGoal] = useState<DrinkGoal | null>(null);
@@ -72,7 +99,10 @@ export default function InsightsPage() {
     const now = new Date();
     return { year: now.getFullYear(), month: now.getMonth() };
   });
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const supabase = createClient();
+  const { toast } = useToast();
 
   const dailyLimit = goal?.daily_unit_limit ?? goal?.dailyUnitLimit ?? 2;
   const weeklyLimit = goal?.weekly_unit_limit ?? goal?.weeklyUnitLimit ?? 14;
@@ -112,13 +142,13 @@ export default function InsightsPage() {
     return logs.filter((l) => new Date(l.logged_at || l.loggedAt || '') >= cutoff);
   }, [logs, period]);
 
-  // Units per day
+  // Standard drinks per day
   const dailyData = useMemo(() => {
     const map = new Map<string, number>();
     filteredLogs.forEach((l) => {
       const d = new Date(l.logged_at || l.loggedAt || '');
       const key = getDateKey(d);
-      map.set(key, (map.get(key) || 0) + (l.standard_units ?? l.standardUnits ?? 0));
+      map.set(key, (map.get(key) || 0) + getLogDrinks(l));
     });
 
     const days = period === '7d' ? 7 : period === '30d' ? 30 : period === '90d' ? 90 : period === '12mo' ? 365 : 365;
@@ -126,12 +156,12 @@ export default function InsightsPage() {
     for (let i = days - 1; i >= 0; i--) {
       const d = daysAgo(i);
       const key = getDateKey(d);
-      const units = map.get(key) || 0;
+      const drinks = map.get(key) || 0;
       result.push({
         date: key,
         label: `${d.getMonth() + 1}/${d.getDate()}`,
-        units: Math.round(units * 10) / 10,
-        fill: units === 0 ? '#d1d5db' : units <= dailyLimit * 0.5 ? '#22c55e' : units <= dailyLimit ? '#f59e0b' : '#ef4444',
+        drinks: Math.round(drinks * 10) / 10,
+        fill: drinks === 0 ? '#d1d5db' : drinks <= dailyLimit * 0.5 ? '#22c55e' : drinks <= dailyLimit ? '#f59e0b' : '#ef4444',
       });
     }
     return result;
@@ -144,15 +174,15 @@ export default function InsightsPage() {
     filteredLogs.forEach((l) => {
       const d = new Date(l.logged_at || l.loggedAt || '');
       const key = getWeekKey(d);
-      map.set(key, (map.get(key) || 0) + (l.standard_units ?? l.standardUnits ?? 0));
+      map.set(key, (map.get(key) || 0) + getLogDrinks(l));
     });
     return Array.from(map.entries())
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([key, units]) => ({
+      .map(([key, drinks]) => ({
         week: key,
         label: `${key.slice(5)}`,
-        units: Math.round(units * 10) / 10,
-        fill: units <= weeklyLimit * 0.5 ? '#22c55e' : units <= weeklyLimit ? '#f59e0b' : '#ef4444',
+        drinks: Math.round(drinks * 10) / 10,
+        fill: drinks <= weeklyLimit * 0.5 ? '#22c55e' : drinks <= weeklyLimit ? '#f59e0b' : '#ef4444',
       }));
   }, [filteredLogs, period, weeklyLimit]);
 
@@ -161,24 +191,24 @@ export default function InsightsPage() {
     if (!showTrend) return [];
     return dailyData.map((_, i, arr) => {
       const slice = arr.slice(Math.max(0, i - 6), i + 1);
-      const avg = slice.reduce((s, d) => s + d.units, 0) / slice.length;
+      const avg = slice.reduce((s, d) => s + d.drinks, 0) / slice.length;
       return { date: arr[i].date, label: arr[i].label, avg: Math.round(avg * 10) / 10 };
     });
   }, [dailyData, showTrend]);
 
   // Stats
   const stats = useMemo(() => {
-    const totalUnits = filteredLogs.reduce((s, l) => s + (l.standard_units ?? l.standardUnits ?? 0), 0);
+    const totalDrinks = filteredLogs.reduce((s, l) => s + getLogDrinks(l), 0);
     const daysInPeriod = period === '7d' ? 7 : period === '30d' ? 30 : period === '90d' ? 90 : period === '12mo' ? 365 : Math.max(1, dailyData.length);
     const weeksInPeriod = daysInPeriod / 7;
-    const dryDays = dailyData.filter((d) => d.units === 0).length;
+    const dryDays = dailyData.filter((d) => d.drinks === 0).length;
     const dryPercent = daysInPeriod > 0 ? Math.round((dryDays / daysInPeriod) * 100) : 0;
 
     // Longest dry streak
     let maxStreak = 0;
     let cur = 0;
     dailyData.forEach((d) => {
-      if (d.units === 0) {
+      if (d.drinks === 0) {
         cur++;
         maxStreak = Math.max(maxStreak, cur);
       } else {
@@ -187,8 +217,8 @@ export default function InsightsPage() {
     });
 
     return {
-      totalUnits: Math.round(totalUnits * 10) / 10,
-      avgPerWeek: Math.round((totalUnits / Math.max(weeksInPeriod, 1)) * 10) / 10,
+      totalDrinks: displayUnits(totalDrinks),
+      avgPerWeek: displayUnits(totalDrinks / Math.max(weeksInPeriod, 1)),
       dryDays,
       dryPercent,
       longestStreak: maxStreak,
@@ -200,15 +230,15 @@ export default function InsightsPage() {
     const map = new Map<string, number>();
     filteredLogs.forEach((l) => {
       const cat = l.category || 'other';
-      map.set(cat, (map.get(cat) || 0) + (l.standard_units ?? l.standardUnits ?? 0));
+      map.set(cat, (map.get(cat) || 0) + getLogDrinks(l));
     });
     return Array.from(map.entries())
-      .map(([category, units]) => ({
+      .map(([category, drinks]) => ({
         category,
         name: CATEGORY_LABELS[category] || category,
-        units: Math.round(units * 10) / 10,
+        drinks: Math.round(drinks * 10) / 10,
       }))
-      .sort((a, b) => b.units - a.units);
+      .sort((a, b) => b.drinks - a.drinks);
   }, [filteredLogs]);
 
   // Heatmap data
@@ -218,30 +248,58 @@ export default function InsightsPage() {
     const lastDay = new Date(year, month + 1, 0);
     const startPad = firstDay.getDay(); // 0=Sun
 
-    // Build day→units map from all logs
+    // Build day→drinks map from all logs
     const dayMap = new Map<string, number>();
     logs.forEach((l) => {
       const d = new Date(l.logged_at || l.loggedAt || '');
       const key = getDateKey(d);
-      dayMap.set(key, (dayMap.get(key) || 0) + (l.standard_units ?? l.standardUnits ?? 0));
+      dayMap.set(key, (dayMap.get(key) || 0) + getLogDrinks(l));
     });
 
-    const cells: { key: string; units: number; day: number; padded: boolean }[] = [];
+    const cells: { key: string; drinks: number; day: number; padded: boolean }[] = [];
     for (let i = 0; i < startPad; i++) {
-      cells.push({ key: `pad-${i}`, units: -1, day: 0, padded: true });
+      cells.push({ key: `pad-${i}`, drinks: -1, day: 0, padded: true });
     }
     for (let d = 1; d <= lastDay.getDate(); d++) {
       const key = getDateKey(new Date(year, month, d));
-      cells.push({ key, units: dayMap.get(key) || 0, day: d, padded: false });
+      cells.push({ key, drinks: dayMap.get(key) || 0, day: d, padded: false });
     }
     return cells;
   }, [heatmapMonth, logs]);
 
-  function getHeatColor(units: number): string {
-    if (units <= 0) return 'bg-gray-100 dark:bg-gray-800';
-    if (units <= dailyLimit * 0.33) return 'bg-amber-200 dark:bg-amber-900/50';
-    if (units <= dailyLimit * 0.66) return 'bg-amber-400 dark:bg-amber-700';
+  // Logs for the selected day in the sheet
+  const selectedDayLogs = useMemo(() => {
+    if (!selectedDay) return [];
+    return logs.filter((l) => {
+      const d = new Date(l.logged_at || l.loggedAt || '');
+      return getDateKey(d) === selectedDay;
+    }).sort((a, b) => {
+      const aTime = new Date(a.logged_at || a.loggedAt || '').getTime();
+      const bTime = new Date(b.logged_at || b.loggedAt || '').getTime();
+      return bTime - aTime;
+    });
+  }, [selectedDay, logs]);
+
+  function getHeatColor(drinks: number): string {
+    if (drinks <= 0) return 'bg-gray-100 dark:bg-gray-800';
+    if (drinks <= dailyLimit * 0.33) return 'bg-amber-200 dark:bg-amber-900/50';
+    if (drinks <= dailyLimit * 0.66) return 'bg-amber-400 dark:bg-amber-700';
     return 'bg-amber-600 dark:bg-amber-500';
+  }
+
+  function handleDayClick(dateKey: string) {
+    setSelectedDay(dateKey);
+    setSheetOpen(true);
+  }
+
+  async function handleDeleteLog(logId: string) {
+    const { error } = await supabase.from('drink_logs').delete().eq('id', logId);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      return;
+    }
+    setLogs((prev) => prev.filter((l) => l.id !== logId));
+    toast({ title: 'Deleted', description: 'Drink log removed' });
   }
 
   const useWeekly = period === '90d' || period === '12mo' || period === 'all';
@@ -286,9 +344,17 @@ export default function InsightsPage() {
       {/* Bar chart */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg">
-            {useWeekly ? 'Units per Week' : 'Units per Day'}
-          </CardTitle>
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-lg">
+              {useWeekly ? 'Standard drinks per week' : 'Standard drinks per day'}
+            </CardTitle>
+            <div className="group relative">
+              <Info className="w-4 h-4 text-gray-400 cursor-help" />
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none w-56 text-center z-10">
+                1 standard drink = 10ml pure alcohol (e.g. a 330ml beer at 5%)
+              </div>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {chartData.length > 0 ? (
@@ -298,24 +364,30 @@ export default function InsightsPage() {
                   <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                   <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={Math.max(0, Math.floor(dailyData.length / 8))} />
                   <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip />
+                  <Tooltip
+                    formatter={(value: number, name: string) =>
+                      [value, name === 'avg' ? '7-day avg' : 'Standard drinks']
+                    }
+                  />
                   <Legend />
-                  <Bar dataKey="units" name="Units" fill="#3b82f6" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="drinks" name="Standard drinks" fill="#3b82f6" radius={[2, 2, 0, 0]} />
                   <Line dataKey="avg" name="7-day avg" stroke="#ef4444" strokeWidth={2} dot={false} />
-                  <ReferenceLine y={dailyLimit} stroke="#f59e0b" strokeDasharray="4 4" label={{ value: 'Limit', fontSize: 10 }} />
+                  <ReferenceLine y={dailyLimit} stroke="#f59e0b" strokeDasharray="4 4" label={{ value: `${dailyLimit} limit`, fontSize: 10 }} />
                 </LineChart>
               ) : (
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                   <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={Math.max(0, Math.floor(chartData.length / 8))} />
                   <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip />
-                  <Bar dataKey="units" name="Units" radius={[2, 2, 0, 0]}>
+                  <Tooltip
+                    formatter={(value: number) => [value, 'Standard drinks']}
+                  />
+                  <Bar dataKey="drinks" name="Standard drinks" radius={[2, 2, 0, 0]}>
                     {chartData.map((entry, i) => (
                       <Cell key={i} fill={entry.fill} />
                     ))}
                   </Bar>
-                  <ReferenceLine y={refLimit} stroke="#f59e0b" strokeDasharray="4 4" label={{ value: 'Limit', fontSize: 10 }} />
+                  <ReferenceLine y={refLimit} stroke="#f59e0b" strokeDasharray="4 4" label={{ value: `${refLimit} limit`, fontSize: 10 }} />
                 </BarChart>
               )}
             </ResponsiveContainer>
@@ -342,14 +414,14 @@ export default function InsightsPage() {
       <div className="grid grid-cols-2 gap-3">
         <Card>
           <CardContent className="py-4 text-center">
-            <p className="text-2xl font-bold dark:text-white">{stats.totalUnits}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Total units</p>
+            <p className="text-2xl font-bold dark:text-white">{stats.totalDrinks}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Total standard drinks</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="py-4 text-center">
             <p className="text-2xl font-bold dark:text-white">{stats.avgPerWeek}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Avg / week</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Avg drinks / week</p>
           </CardContent>
         </Card>
         <Card>
@@ -363,7 +435,7 @@ export default function InsightsPage() {
         <Card>
           <CardContent className="py-4 text-center">
             <p className="text-2xl font-bold dark:text-white">{stats.longestStreak}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Longest streak</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Longest dry streak</p>
           </CardContent>
         </Card>
       </div>
@@ -409,13 +481,28 @@ export default function InsightsPage() {
           </div>
           <div className="grid grid-cols-7 gap-1">
             {heatmapData.map((cell) => (
-              <div
+              <button
                 key={cell.key}
-                className={`aspect-square rounded-sm ${
-                  cell.padded ? '' : getHeatColor(cell.units)
+                type="button"
+                disabled={cell.padded}
+                onClick={() => !cell.padded && handleDayClick(cell.key)}
+                className={`aspect-square rounded-sm flex items-center justify-center transition-transform ${
+                  cell.padded
+                    ? ''
+                    : `${getHeatColor(cell.drinks)} cursor-pointer hover:ring-2 hover:ring-blue-400 hover:ring-offset-1 dark:hover:ring-offset-gray-900 active:scale-95`
                 }`}
-                title={cell.padded ? '' : `${cell.key}: ${cell.units.toFixed(1)} units`}
-              />
+                title={cell.padded ? '' : `${formatDateLabel(cell.key)}: ${cell.drinks.toFixed(1)} standard drinks`}
+              >
+                {!cell.padded && (
+                  <span className={`text-xs font-medium ${
+                    cell.drinks > dailyLimit * 0.66
+                      ? 'text-white dark:text-white'
+                      : 'text-gray-600 dark:text-gray-300'
+                  }`}>
+                    {cell.day}
+                  </span>
+                )}
+              </button>
             ))}
           </div>
           {/* Legend */}
@@ -442,7 +529,7 @@ export default function InsightsPage() {
                 <PieChart>
                   <Pie
                     data={categoryData}
-                    dataKey="units"
+                    dataKey="drinks"
                     nameKey="name"
                     cx="50%"
                     cy="50%"
@@ -453,13 +540,84 @@ export default function InsightsPage() {
                       <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip formatter={(value: number) => [value, 'Standard drinks']} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
       )}
+
+      {/* Day detail Sheet */}
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto sm:max-h-none sm:h-full md:max-w-md" >
+          <SheetHeader>
+            <SheetTitle>
+              {selectedDay ? formatDateLabel(selectedDay) : ''}
+            </SheetTitle>
+            <SheetDescription>
+              {selectedDayLogs.length === 0
+                ? 'No drinks logged this day'
+                : `${selectedDayLogs.length} drink${selectedDayLogs.length === 1 ? '' : 's'} — ${displayUnits(selectedDayLogs.reduce((s, l) => s + getLogDrinks(l), 0))} standard drinks`
+              }
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="mt-4 space-y-3">
+            {selectedDayLogs.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-400 dark:text-gray-500 mb-4">Nothing logged yet</p>
+                <Button asChild variant="outline">
+                  <Link href="/drinks/log">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Log a drink
+                  </Link>
+                </Button>
+              </div>
+            ) : (
+              selectedDayLogs.map((log) => {
+                const emoji = CATEGORY_EMOJI[log.category] || '🍹';
+                const name = log.drink_name || log.drinkName || 'Unknown';
+                const time = formatTime(log.logged_at || log.loggedAt || '');
+                const drinks = displayUnits(getLogDrinks(log));
+                const vol = log.volume_ml ?? log.volumeMl ?? 0;
+                const abv = log.abv_percent ?? log.abvPercent ?? 0;
+                const qty = log.quantity ?? 1;
+
+                return (
+                  <div
+                    key={log.id}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800"
+                  >
+                    <span className="text-xl">{emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium dark:text-white truncate">
+                        {qty > 1 ? `${qty}× ` : ''}{name}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {time} · {vol}ml · {abv}% ABV
+                      </p>
+                      {log.notes && (
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate">{log.notes}</p>
+                      )}
+                    </div>
+                    <span className="text-sm font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 whitespace-nowrap">
+                      {drinks}
+                    </span>
+                    <button
+                      onClick={() => handleDeleteLog(log.id)}
+                      className="p-1.5 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors rounded hover:bg-red-50 dark:hover:bg-red-900/20"
+                      aria-label="Delete drink log"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

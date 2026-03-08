@@ -209,6 +209,7 @@ export interface DrinkLog {
   volume_ml?: number;
   abvPercent?: number;
   abv_percent?: number;
+  quantity?: number;
   standardUnits?: number;
   standard_units?: number;
   notes?: string;
