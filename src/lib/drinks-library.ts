@@ -15,10 +15,10 @@ export const CATEGORY_EMOJI: Record<DrinkCategory, string> = {
 
 export const VOLUME_CHIPS: Record<DrinkCategory, number[]> = {
   beer: [250, 330, 375, 440, 568],
-  wine: [125, 175, 250],
-  spirits: [25, 30, 50, 60],
+  wine: [125, 175, 250, 750],
+  spirits: [25, 50],
   cider: [330, 440, 500, 568],
-  other: [275, 330, 440],
+  other: [150, 200, 250],
 };
 
 export const drinksLibrary: LibraryDrink[] = [

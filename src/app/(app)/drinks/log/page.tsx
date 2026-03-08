@@ -15,8 +15,9 @@ import {
   Apple,
   Coffee,
   Check,
-  ChevronDown,
+  ChevronsUpDown,
 } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DrinkCategory, LibraryDrink } from '@/types';
@@ -284,22 +285,43 @@ export default function LogDrinkPage() {
                 <TimeChips value={loggedAt} onChange={setLoggedAt} />
               </div>
 
-              {/* Notes — collapsed by default */}
+              {/* Note */}
               <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={() => setNotesExpanded(!notesExpanded)}
-                  className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                >
-                  <ChevronDown className={`w-4 h-4 transition-transform ${notesExpanded ? 'rotate-180' : ''}`} />
-                  Note
-                </button>
-                {notesExpanded && (
-                  <Input
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="e.g. at dinner with friends"
-                  />
+                <Label>Note</Label>
+                {notesExpanded ? (
+                  <div className="relative">
+                    <Textarea
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="e.g. at dinner with friends"
+                      rows={3}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setNotesExpanded(false)}
+                      className="absolute right-2 top-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      aria-label="Collapse note"
+                    >
+                      <ChevronsUpDown className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <Input
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="e.g. at dinner with friends"
+                      className="pr-8"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setNotesExpanded(true)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      aria-label="Expand note"
+                    >
+                      <ChevronsUpDown className="w-4 h-4" />
+                    </button>
+                  </div>
                 )}
               </div>
             </CardContent>
