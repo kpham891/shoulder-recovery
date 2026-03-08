@@ -1,8 +1,9 @@
 import { DrinkLog } from '@/types';
+import { calculateUnits, displayUnits } from './units-calculator';
 
-/** WHO standard unit = 10 ml pure alcohol */
+/** WHO standard unit = 10 ml pure alcohol — delegates to units-calculator */
 export function calculateStandardUnits(volume_ml: number, abv_percent: number): number {
-  return Math.round(((volume_ml * abv_percent) / 100 / 10) * 10) / 10;
+  return displayUnits(calculateUnits(volume_ml, abv_percent));
 }
 
 /** Rough calorie estimate: ~70 kcal per standard unit */
@@ -42,7 +43,6 @@ export function getDryStreak(drinkLogs: DrinkLog[]): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Build a set of dates that have drinks
   const datesWithDrinks = new Set<string>();
   drinkLogs.forEach((log) => {
     const d = new Date(log.logged_at || log.loggedAt || '');
@@ -53,11 +53,9 @@ export function getDryStreak(drinkLogs: DrinkLog[]): number {
   let streak = 0;
   const cursor = new Date(today);
 
-  // If today has drinks, streak is 0
   const todayKey = `${cursor.getFullYear()}-${cursor.getMonth()}-${cursor.getDate()}`;
   if (datesWithDrinks.has(todayKey)) return 0;
 
-  // Walk backwards from today
   for (let i = 0; i < 365; i++) {
     const key = `${cursor.getFullYear()}-${cursor.getMonth()}-${cursor.getDate()}`;
     if (datesWithDrinks.has(key)) break;

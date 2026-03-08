@@ -11,7 +11,8 @@ create table if not exists public.drink_logs (
   category text not null check (category in ('beer','wine','spirits','cider','other')),
   volume_ml numeric not null,
   abv_percent numeric not null,
-  standard_units numeric not null,
+  quantity integer not null default 1,
+  standard_units numeric generated always as (quantity * (volume_ml * abv_percent) / 1000.0) stored,
   notes text,
   created_at timestamptz default now()
 );
