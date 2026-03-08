@@ -190,6 +190,67 @@ export interface WorkoutCompletion {
   createdAt: string;
 }
 
+// ─── Drink Tracking Types ───────────────────────────────────────────
+
+export type DrinkCategory = 'beer' | 'wine' | 'spirits' | 'cider' | 'other';
+
+export type Sex = 'male' | 'female' | 'unspecified';
+
+export interface DrinkLog {
+  id: string;
+  userId?: string;
+  user_id?: string;
+  loggedAt?: string;
+  logged_at?: string;
+  drinkName?: string;
+  drink_name?: string;
+  category: DrinkCategory;
+  volumeMl?: number;
+  volume_ml?: number;
+  abvPercent?: number;
+  abv_percent?: number;
+  standardUnits?: number;
+  standard_units?: number;
+  notes?: string;
+  createdAt?: string;
+  created_at?: string;
+}
+
+export interface DrinkFavorite {
+  id: string;
+  userId?: string;
+  user_id?: string;
+  drinkName?: string;
+  drink_name?: string;
+  category: DrinkCategory;
+  volumeMl?: number;
+  volume_ml?: number;
+  abvPercent?: number;
+  abv_percent?: number;
+}
+
+export interface DrinkGoal {
+  id: string;
+  userId?: string;
+  user_id?: string;
+  weeklyUnitLimit?: number;
+  weekly_unit_limit?: number;
+  dryDaysPerWeekTarget?: number;
+  dry_days_per_week_target?: number;
+  dailyUnitLimit?: number;
+  daily_unit_limit?: number;
+  sex?: Sex;
+}
+
+export interface LibraryDrink {
+  id: string;
+  name: string;
+  category: DrinkCategory;
+  volume_ml: number;
+  abv_percent: number;
+  units: number;
+}
+
 // Helper type for activity allowance
 export interface AllowedActivities {
   cardio: CardioType[];

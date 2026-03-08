@@ -12,6 +12,7 @@ import {
   Settings,
   Target,
   Trophy,
+  Wine,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
@@ -23,6 +24,7 @@ const navItems = [
   { href: '/rehab', label: 'Rehab', icon: Activity },
   { href: '/fitness', label: 'Fitness', icon: Dumbbell },
   { href: '/milestones', label: 'Milestones', icon: Trophy },
+  { href: '/drinks', label: 'Drinks', icon: Wine },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -38,10 +40,21 @@ export function MainNav() {
 
   return (
     <>
+      {/* Mobile top header */}
+      <header className="md:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 border-b dark:border-gray-800 z-50 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <span className="font-bold dark:text-white">Recovery</span>
+          </div>
+          <ThemeToggle />
+        </div>
+      </header>
+
       {/* Mobile bottom nav */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t dark:border-gray-800 z-50">
         <div className="flex justify-around items-center h-16">
-          {navItems.slice(0, 5).map((item) => {
+          {navItems.filter(i => i.href !== '/settings').slice(0, 6).map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
             return (
