@@ -282,9 +282,19 @@ export default function InsightsPage() {
 
   function getHeatColor(drinks: number): string {
     if (drinks <= 0) return 'bg-gray-100 dark:bg-gray-800';
-    if (drinks <= dailyLimit * 0.33) return 'bg-amber-200 dark:bg-amber-900/50';
-    if (drinks <= dailyLimit * 0.66) return 'bg-amber-400 dark:bg-amber-700';
-    return 'bg-amber-600 dark:bg-amber-500';
+    const ratio = drinks / dailyLimit;
+    if (ratio <= 0.5) return 'bg-green-200 dark:bg-green-900/50';
+    if (ratio <= 0.75) return 'bg-green-400 dark:bg-green-700';
+    if (ratio <= 1) return 'bg-amber-400 dark:bg-amber-600';
+    if (ratio <= 1.5) return 'bg-red-400 dark:bg-red-700';
+    return 'bg-red-600 dark:bg-red-500';
+  }
+
+  function getHeatTextColor(drinks: number): string {
+    if (drinks <= 0) return 'text-gray-400 dark:text-gray-500';
+    const ratio = drinks / dailyLimit;
+    if (ratio <= 0.5) return 'text-green-800 dark:text-green-200';
+    return 'text-white dark:text-white';
   }
 
   function handleDayClick(dateKey: string) {
@@ -494,11 +504,7 @@ export default function InsightsPage() {
                 title={cell.padded ? '' : `${formatDateLabel(cell.key)}: ${cell.drinks.toFixed(1)} standard drinks`}
               >
                 {!cell.padded && (
-                  <span className={`text-xs font-medium ${
-                    cell.drinks > dailyLimit * 0.66
-                      ? 'text-white dark:text-white'
-                      : 'text-gray-600 dark:text-gray-300'
-                  }`}>
+                  <span className={`text-xs font-medium ${getHeatTextColor(cell.drinks)}`}>
                     {cell.day}
                   </span>
                 )}
@@ -506,13 +512,23 @@ export default function InsightsPage() {
             ))}
           </div>
           {/* Legend */}
-          <div className="flex items-center gap-2 mt-3 justify-end">
-            <span className="text-xs text-gray-400 dark:text-gray-500">Less</span>
-            <div className="w-3 h-3 rounded-sm bg-gray-100 dark:bg-gray-800" />
-            <div className="w-3 h-3 rounded-sm bg-amber-200 dark:bg-amber-900/50" />
-            <div className="w-3 h-3 rounded-sm bg-amber-400 dark:bg-amber-700" />
-            <div className="w-3 h-3 rounded-sm bg-amber-600 dark:bg-amber-500" />
-            <span className="text-xs text-gray-400 dark:text-gray-500">More</span>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-3 justify-end">
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded-sm bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700" />
+              <span className="text-xs text-gray-400 dark:text-gray-500">Dry</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded-sm bg-green-400 dark:bg-green-700" />
+              <span className="text-xs text-gray-400 dark:text-gray-500">Under limit</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded-sm bg-amber-400 dark:bg-amber-600" />
+              <span className="text-xs text-gray-400 dark:text-gray-500">Near limit</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded-sm bg-red-500 dark:bg-red-600" />
+              <span className="text-xs text-gray-400 dark:text-gray-500">Over limit</span>
+            </div>
           </div>
         </CardContent>
       </Card>
