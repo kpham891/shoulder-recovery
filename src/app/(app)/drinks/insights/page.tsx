@@ -721,9 +721,9 @@ export default function InsightsPage() {
                         <QuantityStepper value={editQuantity} onChange={setEditQuantity} />
                       </div>
 
-                      {/* Time */}
+                      {/* Date */}
                       <div className="space-y-1">
-                        <Label className="text-xs">Time</Label>
+                        <Label className="text-xs">Date</Label>
                         <TimeChips
                           value={editTime}
                           onChange={setEditTime}

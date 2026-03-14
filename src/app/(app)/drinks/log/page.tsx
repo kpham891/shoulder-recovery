@@ -24,7 +24,7 @@ import { DrinkCategory, LibraryDrink } from '@/types';
 import { getDrinksByCategory, CATEGORY_EMOJI } from '@/lib/drinks-library';
 import { calculateUnits, displayUnits } from '@/lib/units-calculator';
 import { QuantityStepper } from '@/components/drinks/quantity-stepper';
-import { TimeChips } from '@/components/drinks/time-chips';
+import { TimeChips, getDateForOption } from '@/components/drinks/time-chips';
 import { VolumeChips } from '@/components/drinks/volume-chips';
 
 const categories: { key: DrinkCategory; label: string; icon: typeof Beer }[] = [
@@ -43,13 +43,6 @@ const CATEGORY_BORDER: Record<DrinkCategory, string> = {
   other: 'border-l-pink-500',
 };
 
-function nowLocal(): string {
-  const now = new Date();
-  const offset = now.getTimezoneOffset();
-  const local = new Date(now.getTime() - offset * 60000);
-  return local.toISOString().slice(0, 16);
-}
-
 export default function LogDrinkPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -61,7 +54,7 @@ export default function LogDrinkPage() {
   const [volumeMl, setVolumeMl] = useState(330);
   const [abvPercent, setAbvPercent] = useState(5);
   const [quantity, setQuantity] = useState(1);
-  const [loggedAt, setLoggedAt] = useState(nowLocal);
+  const [loggedAt, setLoggedAt] = useState(() => getDateForOption('today'));
   const [notes, setNotes] = useState('');
   const [notesExpanded, setNotesExpanded] = useState(false);
   const [saveToFavorites, setSaveToFavorites] = useState(false);
@@ -279,9 +272,9 @@ export default function LogDrinkPage() {
                 </div>
               </div>
 
-              {/* Time chips */}
+              {/* Date chips */}
               <div className="space-y-2">
-                <Label>Time</Label>
+                <Label>Date</Label>
                 <TimeChips value={loggedAt} onChange={setLoggedAt} />
               </div>
 

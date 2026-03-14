@@ -1,35 +1,41 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { getTimeForOption, toLocalInput } from '../drinks/time-chips';
+import { describe, it, expect } from 'vitest';
+import { getDateForOption, toLocalInput } from '../drinks/time-chips';
 
 describe('TimeChips — utility functions', () => {
-  it('"Now" option returns a local time string close to now', () => {
-    const nowLocal = toLocalInput(new Date());
-    const result = getTimeForOption('now');
-    expect(result).toBe(nowLocal);
+  it('"today" option returns noon today as a local datetime string', () => {
+    const result = getDateForOption('today');
+    const expected = toLocalInput(new Date());
+    expect(result).toBe(expected);
+    // Verify it's noon
+    expect(result).toMatch(/T12:00$/);
   });
 
-  it('"1h ago" option returns a local time string close to 1 hour ago', () => {
-    const oneHourAgo = toLocalInput(new Date(Date.now() - 3600 * 1000));
-    const result = getTimeForOption('1h');
-    expect(result).toBe(oneHourAgo);
+  it('"yesterday" option returns noon yesterday', () => {
+    const result = getDateForOption('yesterday');
+    const yesterday = new Date(Date.now() - 86400 * 1000);
+    const expected = toLocalInput(yesterday);
+    expect(result).toBe(expected);
+    expect(result).toMatch(/T12:00$/);
   });
 
-  it('"30m ago" option returns a local time string close to 30 min ago', () => {
-    const thirtyMinAgo = toLocalInput(new Date(Date.now() - 30 * 60 * 1000));
-    const result = getTimeForOption('30m');
-    expect(result).toBe(thirtyMinAgo);
+  it('"2days" option returns noon two days ago', () => {
+    const result = getDateForOption('2days');
+    const twoDaysAgo = new Date(Date.now() - 2 * 86400 * 1000);
+    const expected = toLocalInput(twoDaysAgo);
+    expect(result).toBe(expected);
+    expect(result).toMatch(/T12:00$/);
   });
 
-  it('"2h ago" option returns a local time string close to 2 hours ago', () => {
-    const twoHoursAgo = toLocalInput(new Date(Date.now() - 120 * 60 * 1000));
-    const result = getTimeForOption('2h');
-    expect(result).toBe(twoHoursAgo);
-  });
-
-  it('toLocalInput produces a valid datetime-local format', () => {
+  it('toLocalInput always produces noon in YYYY-MM-DDTHH:MM format', () => {
     const result = toLocalInput(new Date('2025-06-15T14:30:00Z'));
-    expect(result).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
+    expect(result).toMatch(/^\d{4}-\d{2}-\d{2}T12:00$/);
+  });
+
+  it('toLocalInput sets time to noon regardless of input time', () => {
+    const morning = toLocalInput(new Date('2025-06-15T03:00:00'));
+    const evening = toLocalInput(new Date('2025-06-15T23:00:00'));
+    // Same date, both noon
+    expect(morning).toBe(evening);
+    expect(morning).toMatch(/T12:00$/);
   });
 });
