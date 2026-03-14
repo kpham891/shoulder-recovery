@@ -13,13 +13,18 @@ import {
   SheetTitle,
   SheetDescription,
 } from '@/components/ui/sheet';
-import { ArrowLeft, ChevronLeft, ChevronRight, Info, Trash2, Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ArrowLeft, ChevronLeft, ChevronRight, Info, Trash2, Plus, Pencil } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DrinkLog, DrinkGoal } from '@/types';
 import { formatTime } from '@/lib/drinks';
 import { CATEGORY_EMOJI } from '@/lib/drinks-library';
-import { displayUnits } from '@/lib/units-calculator';
+import { calculateUnits, displayUnits } from '@/lib/units-calculator';
+import { VolumeChips } from '@/components/drinks/volume-chips';
+import { QuantityStepper } from '@/components/drinks/quantity-stepper';
+import { TimeChips, toLocalInput } from '@/components/drinks/time-chips';
+import { DrinkCategory } from '@/types';
 import {
   BarChart,
   Bar,
@@ -101,6 +106,15 @@ export default function InsightsPage() {
   });
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [editingLogId, setEditingLogId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editVolume, setEditVolume] = useState(330);
+  const [editAbv, setEditAbv] = useState(5);
+  const [editQuantity, setEditQuantity] = useState(1);
+  const [editTime, setEditTime] = useState('');
+  const [editNotes, setEditNotes] = useState('');
+  const [editCategory, setEditCategory] = useState<DrinkCategory>('beer');
+  const [editSaving, setEditSaving] = useState(false);
   const supabase = createClient();
   const { toast } = useToast();
 
@@ -311,6 +325,72 @@ export default function InsightsPage() {
     setLogs((prev) => prev.filter((l) => l.id !== logId));
     toast({ title: 'Deleted', description: 'Drink log removed' });
   }
+
+  function startEdit(log: DrinkLog) {
+    setEditingLogId(log.id);
+    setEditName(log.drink_name || log.drinkName || '');
+    setEditVolume(log.volume_ml ?? log.volumeMl ?? 330);
+    setEditAbv(log.abv_percent ?? log.abvPercent ?? 5);
+    setEditQuantity(log.quantity ?? 1);
+    setEditTime(toLocalInput(new Date(log.logged_at || log.loggedAt || '')));
+    setEditNotes(log.notes || '');
+    setEditCategory(log.category || 'beer');
+    setEditSaving(false);
+  }
+
+  function cancelEdit() {
+    setEditingLogId(null);
+  }
+
+  async function handleSaveEdit(logId: string) {
+    setEditSaving(true);
+    const { error } = await supabase
+      .from('drink_logs')
+      .update({
+        drink_name: editName,
+        volume_ml: editVolume,
+        abv_percent: editAbv,
+        quantity: editQuantity,
+        logged_at: new Date(editTime).toISOString(),
+        notes: editNotes || null,
+      })
+      .eq('id', logId);
+
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      setEditSaving(false);
+      return;
+    }
+
+    setLogs((prev) =>
+      prev.map((l) =>
+        l.id === logId
+          ? {
+              ...l,
+              drink_name: editName,
+              drinkName: editName,
+              volume_ml: editVolume,
+              volumeMl: editVolume,
+              abv_percent: editAbv,
+              abvPercent: editAbv,
+              quantity: editQuantity,
+              logged_at: new Date(editTime).toISOString(),
+              loggedAt: new Date(editTime).toISOString(),
+              standard_units: (editVolume * editAbv) / 1000,
+              standardUnits: (editVolume * editAbv) / 1000,
+              notes: editNotes || undefined,
+            }
+          : l
+      )
+    );
+
+    setEditingLogId(null);
+    toast({ title: 'Updated', description: 'Drink log updated' });
+  }
+
+  const editLiveUnits = editingLogId
+    ? displayUnits(calculateUnits(editVolume, editAbv, editQuantity))
+    : 0;
 
   const useWeekly = period === '90d' || period === '12mo' || period === 'all';
   const chartData = useWeekly ? weeklyData : dailyData;
@@ -592,6 +672,97 @@ export default function InsightsPage() {
               </div>
             ) : (
               selectedDayLogs.map((log) => {
+                if (editingLogId === log.id) {
+                  return (
+                    <div key={log.id} className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800 space-y-4">
+                      {/* Live units badge */}
+                      <div className="text-center">
+                        <span className="text-3xl font-bold text-blue-700 dark:text-blue-300">{editLiveUnits}</span>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">standard drinks</p>
+                      </div>
+
+                      {/* Name */}
+                      <div className="space-y-1">
+                        <Label className="text-xs">Name</Label>
+                        <Input
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                        />
+                      </div>
+
+                      {/* Volume */}
+                      <div className="space-y-1">
+                        <Label className="text-xs">Volume</Label>
+                        <VolumeChips
+                          category={editCategory}
+                          value={editVolume}
+                          onChange={setEditVolume}
+                        />
+                      </div>
+
+                      {/* ABV */}
+                      <div className="space-y-1">
+                        <Label className="text-xs">ABV</Label>
+                        <div className="relative w-28">
+                          <Input
+                            type="number"
+                            step="0.1"
+                            value={editAbv}
+                            onChange={(e) => setEditAbv(Number(e.target.value) || 0)}
+                            className="pr-8"
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">%</span>
+                        </div>
+                      </div>
+
+                      {/* Quantity */}
+                      <div className="space-y-1">
+                        <Label className="text-xs">Quantity</Label>
+                        <QuantityStepper value={editQuantity} onChange={setEditQuantity} />
+                      </div>
+
+                      {/* Time */}
+                      <div className="space-y-1">
+                        <Label className="text-xs">Time</Label>
+                        <TimeChips
+                          value={editTime}
+                          onChange={setEditTime}
+                          defaultSelected="custom"
+                        />
+                      </div>
+
+                      {/* Note */}
+                      <div className="space-y-1">
+                        <Label className="text-xs">Note</Label>
+                        <Input
+                          value={editNotes}
+                          onChange={(e) => setEditNotes(e.target.value)}
+                          placeholder="e.g. at dinner with friends"
+                        />
+                      </div>
+
+                      {/* Buttons */}
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => handleSaveEdit(log.id)}
+                          disabled={editSaving || !editName}
+                          className="flex-1"
+                        >
+                          {editSaving ? 'Saving…' : 'Save'}
+                        </Button>
+                        <Button
+                          onClick={cancelEdit}
+                          variant="outline"
+                          className="flex-1"
+                          disabled={editSaving}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                }
+
                 const emoji = CATEGORY_EMOJI[log.category] || '🍹';
                 const name = log.drink_name || log.drinkName || 'Unknown';
                 const time = formatTime(log.logged_at || log.loggedAt || '');
@@ -620,6 +791,13 @@ export default function InsightsPage() {
                     <span className="text-sm font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 whitespace-nowrap">
                       {drinks}
                     </span>
+                    <button
+                      onClick={() => startEdit(log)}
+                      className="p-1.5 text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors rounded hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                      aria-label="Edit drink log"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
                     <button
                       onClick={() => handleDeleteLog(log.id)}
                       className="p-1.5 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors rounded hover:bg-red-50 dark:hover:bg-red-900/20"

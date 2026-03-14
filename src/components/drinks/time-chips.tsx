@@ -10,6 +10,7 @@ type TimeOption = 'now' | '30m' | '1h' | '2h' | 'custom';
 interface TimeChipsProps {
   value: string; // local datetime string (YYYY-MM-DDTHH:MM)
   onChange: (localDatetimeString: string) => void;
+  defaultSelected?: TimeOption;
 }
 
 const QUICK_OPTIONS: { key: Exclude<TimeOption, 'custom'>; label: string }[] = [
@@ -158,8 +159,8 @@ function CustomTimePicker({
   );
 }
 
-export function TimeChips({ value, onChange }: TimeChipsProps) {
-  const [selected, setSelected] = useState<TimeOption>('now');
+export function TimeChips({ value, onChange, defaultSelected = 'now' }: TimeChipsProps) {
+  const [selected, setSelected] = useState<TimeOption>(defaultSelected);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const customLabel = selected === 'custom' ? formatCustomChipLabel(value) : 'Custom';
 
