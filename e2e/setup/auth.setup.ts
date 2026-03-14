@@ -43,9 +43,8 @@ setup('authenticate', async ({ page }) => {
   await page.fill('input[type="password"]', password);
   await page.click('button[type="submit"]');
 
-  // Wait for redirect to dashboard
-  await page.waitForURL('**/dashboard', { timeout: 15000 });
-  await expect(page).toHaveURL(/dashboard/);
+  // Wait for redirect to home
+  await page.waitForURL('**/', { timeout: 15000 });
 
   // Save auth state
   const authDir = path.resolve(__dirname, '../.auth');

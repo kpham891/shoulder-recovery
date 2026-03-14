@@ -48,7 +48,7 @@ export default function LoginPage() {
           .single();
 
         if (profile) {
-          router.push('/dashboard');
+          router.push('/');
         } else {
           router.push('/onboarding');
         }
@@ -116,7 +116,7 @@ export default function LoginPage() {
           </div>
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription>
-            Log in to continue your recovery journey
+            Log in to Kev&apos;s Health
           </CardDescription>
         </CardHeader>
         <CardContent>

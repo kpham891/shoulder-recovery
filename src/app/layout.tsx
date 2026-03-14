@@ -3,9 +3,9 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: "Recovery + Fitness Planner",
+  title: "Kev's Health",
   description:
-    "Track shoulder recovery and generate fitness workouts that adapt to your limitations",
+    "Personal health logging — shoulder recovery, drink tracking, and insights",
 };
 
 export default function RootLayout({

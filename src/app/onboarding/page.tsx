@@ -135,7 +135,7 @@ export default function OnboardingPage() {
         description: 'Your recovery plan is ready.',
       });
 
-      router.push('/dashboard');
+      router.push('/');
     } catch {
       toast({
         title: 'Error',

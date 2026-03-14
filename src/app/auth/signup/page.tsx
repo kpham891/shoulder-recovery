@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Activity, Shield } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -88,14 +88,13 @@ export default function SignupPage() {
           </div>
           <CardTitle className="text-2xl">Create Account</CardTitle>
           <CardDescription>
-            Start tracking your recovery journey
+            Create your Kev&apos;s Health account
           </CardDescription>
         </CardHeader>
         <CardContent>
           {/* Disclaimer */}
-          <div className="bg-amber-50 border border-amber-200 rounded-md p-3 mb-6 text-sm text-amber-800">
-            <Shield className="inline-block w-4 h-4 mr-1" />
-            This app is not medical advice. Always consult your doctor or PT.
+          <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md p-3 mb-6 text-sm text-blue-800 dark:text-blue-200">
+            Track your shoulder recovery and drink intake in one place.
           </div>
 
           <form onSubmit={handleSignup} className="space-y-4">

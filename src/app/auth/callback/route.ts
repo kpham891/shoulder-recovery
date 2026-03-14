@@ -19,7 +19,7 @@ export async function GET(request: Request) {
         .single();
 
       if (profile) {
-        return NextResponse.redirect(new URL('/dashboard', requestUrl.origin));
+        return NextResponse.redirect(new URL('/', requestUrl.origin));
       }
     }
   }
