@@ -77,6 +77,7 @@ create table if not exists public.drink_goals (
   weekly_unit_limit numeric not null default 14,
   dry_days_per_week_target integer not null default 2,
   daily_unit_limit numeric not null default 2,
+  yearly_drink_target numeric,
   sex text not null default 'unspecified' check (sex in ('male','female','unspecified'))
 );
 

@@ -240,6 +240,8 @@ export interface DrinkGoal {
   dry_days_per_week_target?: number;
   dailyUnitLimit?: number;
   daily_unit_limit?: number;
+  yearlyDrinkTarget?: number | null;
+  yearly_drink_target?: number | null;
   sex?: Sex;
 }
 

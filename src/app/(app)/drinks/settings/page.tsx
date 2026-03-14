@@ -15,6 +15,7 @@ export default function DrinkSettingsPage() {
   const [weeklyLimit, setWeeklyLimit] = useState(14);
   const [dailyLimit, setDailyLimit] = useState(2);
   const [dryDaysTarget, setDryDaysTarget] = useState(2);
+  const [yearlyTarget, setYearlyTarget] = useState<number | null>(null);
   const [sex, setSex] = useState<Sex>('unspecified');
   const [favorites, setFavorites] = useState<DrinkFavorite[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +44,7 @@ export default function DrinkSettingsPage() {
       setWeeklyLimit(g.weekly_unit_limit ?? 14);
       setDailyLimit(g.daily_unit_limit ?? 2);
       setDryDaysTarget(g.dry_days_per_week_target ?? 2);
+      setYearlyTarget(g.yearly_drink_target ?? null);
       setSex(g.sex ?? 'unspecified');
     }
 
@@ -63,6 +65,7 @@ export default function DrinkSettingsPage() {
       weekly_unit_limit: weeklyLimit,
       daily_unit_limit: dailyLimit,
       dry_days_per_week_target: dryDaysTarget,
+      yearly_drink_target: yearlyTarget,
       sex,
     };
 
@@ -149,6 +152,20 @@ export default function DrinkSettingsPage() {
               value={dryDaysTarget}
               onChange={(e) => setDryDaysTarget(Number(e.target.value) || 0)}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="yearly-target">Year goal (optional)</Label>
+            <Input
+              id="yearly-target"
+              type="number"
+              placeholder="e.g. 500"
+              value={yearlyTarget ?? ''}
+              onChange={(e) => setYearlyTarget(e.target.value ? Number(e.target.value) : null)}
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Total standard drinks target for the year. Leave blank to skip.
+            </p>
           </div>
 
           <div className="space-y-2">
