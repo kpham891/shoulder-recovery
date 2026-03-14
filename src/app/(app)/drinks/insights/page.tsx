@@ -52,13 +52,14 @@ const PERIOD_LABELS: { key: Period; label: string }[] = [
   { key: 'all', label: 'All' },
 ];
 
-const PIE_COLORS = ['#f59e0b', '#8b5cf6', '#3b82f6', '#10b981', '#6b7280'];
+const PIE_COLORS = ['#3b82f6', '#06b6d4', '#8b5cf6', '#ec4899', '#f59e0b', '#f97316'];
 const CATEGORY_LABELS: Record<string, string> = {
   beer: 'Beer',
+  'cider-seltzer': 'Cider & Seltzer',
   wine: 'Wine',
+  'sake-soju': 'Sake & Soju',
   spirits: 'Spirits',
-  cider: 'Cider',
-  other: 'Other',
+  cocktails: 'Cocktails',
 };
 
 function getDateKey(d: Date): string {

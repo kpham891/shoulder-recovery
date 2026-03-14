@@ -12,8 +12,9 @@ import {
   Beer,
   Wine,
   GlassWater,
-  Apple,
-  Coffee,
+  Martini,
+  CupSoda,
+  Grape,
   Check,
   ChevronsUpDown,
 } from 'lucide-react';
@@ -29,18 +30,20 @@ import { VolumeChips } from '@/components/drinks/volume-chips';
 
 const categories: { key: DrinkCategory; label: string; icon: typeof Beer }[] = [
   { key: 'beer', label: 'Beer', icon: Beer },
+  { key: 'cider-seltzer', label: 'Cider & Seltzer', icon: CupSoda },
   { key: 'wine', label: 'Wine', icon: Wine },
+  { key: 'sake-soju', label: 'Sake & Soju', icon: Grape },
   { key: 'spirits', label: 'Spirits', icon: GlassWater },
-  { key: 'cider', label: 'Cider', icon: Apple },
-  { key: 'other', label: 'Other', icon: Coffee },
+  { key: 'cocktails', label: 'Cocktails', icon: Martini },
 ];
 
 const CATEGORY_BORDER: Record<DrinkCategory, string> = {
   beer: 'border-l-blue-500',
+  'cider-seltzer': 'border-l-cyan-500',
   wine: 'border-l-purple-500',
+  'sake-soju': 'border-l-pink-500',
   spirits: 'border-l-amber-500',
-  cider: 'border-l-green-500',
-  other: 'border-l-pink-500',
+  cocktails: 'border-l-orange-500',
 };
 
 export default function LogDrinkPage() {

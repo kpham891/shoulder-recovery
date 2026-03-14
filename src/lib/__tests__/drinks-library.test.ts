@@ -25,20 +25,23 @@ describe('drinksLibrary', () => {
     });
   });
 
-  it('beer category exists and has at least 4 drinks', () => {
+  it('beer category has at least 4 drinks', () => {
     const beers = getDrinksByCategory('beer');
     expect(beers.length).toBeGreaterThanOrEqual(4);
   });
 
-  it('wine, spirits, other categories all exist', () => {
+  it('all 6 categories have at least 1 drink', () => {
+    expect(getDrinksByCategory('beer').length).toBeGreaterThan(0);
+    expect(getDrinksByCategory('cider-seltzer').length).toBeGreaterThan(0);
     expect(getDrinksByCategory('wine').length).toBeGreaterThan(0);
+    expect(getDrinksByCategory('sake-soju').length).toBeGreaterThan(0);
     expect(getDrinksByCategory('spirits').length).toBeGreaterThan(0);
-    expect(getDrinksByCategory('other').length).toBeGreaterThan(0);
+    expect(getDrinksByCategory('cocktails').length).toBeGreaterThan(0);
   });
 
-  it('first beer in the list is "Bottle of Beer" (most common first ordering)', () => {
+  it('first beer in the list is "Bottle of Lager"', () => {
     const beers = getDrinksByCategory('beer');
-    expect(beers[0].name).toBe('Bottle of Beer');
+    expect(beers[0].name).toBe('Bottle of Lager');
   });
 
   it('all drink names are natural language (no parenthetical specs in the name)', () => {

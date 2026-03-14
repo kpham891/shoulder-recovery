@@ -21,14 +21,24 @@ describe('VolumeChips', () => {
     expect(screen.getByTestId('volume-chip-750')).toHaveTextContent('750ml');
   });
 
-  it('renders correct chip set for spirits category (25, 50)', () => {
-    render(<VolumeChips category="spirits" value={25} onChange={() => {}} />);
-    expect(screen.getByTestId('volume-chip-25')).toHaveTextContent('25ml');
-    expect(screen.getByTestId('volume-chip-50')).toHaveTextContent('50ml');
+  it('renders correct chip set for spirits category (30, 60)', () => {
+    render(<VolumeChips category="spirits" value={30} onChange={() => {}} />);
+    expect(screen.getByTestId('volume-chip-30')).toHaveTextContent('30ml');
+    expect(screen.getByTestId('volume-chip-60')).toHaveTextContent('60ml');
   });
 
-  it('renders correct chip set for other category (150, 200, 250)', () => {
-    render(<VolumeChips category="other" value={200} onChange={() => {}} />);
+  it('renders correct chip set for sake-soju category (30, 50, 180, 300, 360)', () => {
+    render(<VolumeChips category="sake-soju" value={180} onChange={() => {}} />);
+    expect(screen.getByTestId('volume-chip-30')).toHaveTextContent('30ml');
+    expect(screen.getByTestId('volume-chip-50')).toHaveTextContent('50ml');
+    expect(screen.getByTestId('volume-chip-180')).toHaveTextContent('180ml');
+    expect(screen.getByTestId('volume-chip-300')).toHaveTextContent('300ml');
+    expect(screen.getByTestId('volume-chip-360')).toHaveTextContent('360ml');
+  });
+
+  it('renders correct chip set for cocktails category (100, 150, 200, 250)', () => {
+    render(<VolumeChips category="cocktails" value={200} onChange={() => {}} />);
+    expect(screen.getByTestId('volume-chip-100')).toHaveTextContent('100ml');
     expect(screen.getByTestId('volume-chip-150')).toHaveTextContent('150ml');
     expect(screen.getByTestId('volume-chip-200')).toHaveTextContent('200ml');
     expect(screen.getByTestId('volume-chip-250')).toHaveTextContent('250ml');

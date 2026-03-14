@@ -8,7 +8,7 @@ create table if not exists public.drink_logs (
   user_id uuid references auth.users(id) on delete cascade not null,
   logged_at timestamptz not null default now(),
   drink_name text not null,
-  category text not null check (category in ('beer','wine','spirits','cider','other')),
+  category text not null check (category in ('beer','cider-seltzer','wine','sake-soju','spirits','cocktails')),
   volume_ml numeric not null,
   abv_percent numeric not null,
   quantity integer not null default 1,
@@ -44,7 +44,7 @@ create table if not exists public.drink_favorites (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete cascade not null,
   drink_name text not null,
-  category text not null check (category in ('beer','wine','spirits','cider','other')),
+  category text not null check (category in ('beer','cider-seltzer','wine','sake-soju','spirits','cocktails')),
   volume_ml numeric not null,
   abv_percent numeric not null
 );

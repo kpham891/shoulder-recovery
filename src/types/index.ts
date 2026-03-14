@@ -192,7 +192,7 @@ export interface WorkoutCompletion {
 
 // ─── Drink Tracking Types ───────────────────────────────────────────
 
-export type DrinkCategory = 'beer' | 'wine' | 'spirits' | 'cider' | 'other';
+export type DrinkCategory = 'beer' | 'cider-seltzer' | 'wine' | 'sake-soju' | 'spirits' | 'cocktails';
 
 export type Sex = 'male' | 'female' | 'unspecified';
 
