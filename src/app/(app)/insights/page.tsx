@@ -16,6 +16,7 @@ import { createClient } from '@/lib/supabase/client';
 import { getPainColor } from '@/lib/utils';
 import { currentRecoveryStage } from '@/lib/rules-engine';
 import { getDryStreak } from '@/lib/drinks';
+import { displayUnits } from '@/lib/units-calculator';
 import type { UserProfile, DailyLog, DrinkLog, DrinkGoal } from '@/types';
 import {
   BarChart,
@@ -112,15 +113,15 @@ export default function CombinedInsightsPage() {
     });
     return Object.entries(byDay).map(([date, units]) => ({
       date: new Date(date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      units: Number(units.toFixed(1)),
+      units: Math.round(units * 10) / 10,
     }));
   }, [drinkLogs]);
 
-  const weekAgo = new Date();
-  weekAgo.setDate(weekAgo.getDate() - 7);
-  weekAgo.setHours(0, 0, 0, 0);
+  const weekStart = new Date();
+  weekStart.setHours(0, 0, 0, 0);
+  weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
   const weeklyUnits = drinkLogs
-    .filter(l => new Date(l.logged_at || l.loggedAt || '').getTime() >= weekAgo.getTime())
+    .filter(l => new Date(l.logged_at || l.loggedAt || '').getTime() >= weekStart.getTime())
     .reduce((s, l) => s + getLogDrinks(l), 0);
 
   const last30 = new Date();
@@ -263,7 +264,7 @@ export default function CombinedInsightsPage() {
                 <CardDescription className="text-xs">This Week</CardDescription>
               </CardHeader>
               <CardContent>
-                <span className="text-2xl font-bold dark:text-white">{weeklyUnits.toFixed(1)}</span>
+                <span className="text-2xl font-bold dark:text-white">{displayUnits(weeklyUnits)}</span>
                 <p className="text-xs text-gray-500 dark:text-gray-400">/ {weeklyLimit} limit</p>
               </CardContent>
             </Card>
@@ -272,7 +273,7 @@ export default function CombinedInsightsPage() {
                 <CardDescription className="text-xs">Last 30 Days</CardDescription>
               </CardHeader>
               <CardContent>
-                <span className="text-2xl font-bold dark:text-white">{totalUnits30d.toFixed(1)}</span>
+                <span className="text-2xl font-bold dark:text-white">{displayUnits(totalUnits30d)}</span>
                 <p className="text-xs text-gray-500 dark:text-gray-400">std drinks</p>
               </CardContent>
             </Card>

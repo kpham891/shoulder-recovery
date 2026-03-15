@@ -46,6 +46,7 @@ import {
   ResponsiveContainer,
   Cell,
   LineChart,
+  ComposedChart,
   Line,
   Legend,
 } from 'recharts';
@@ -88,7 +89,7 @@ function getDateKey(d: Date): string {
 
 function getWeekKey(d: Date): string {
   const start = new Date(d);
-  start.setDate(start.getDate() - start.getDay());
+  start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
   return getDateKey(start);
 }
 
@@ -272,13 +273,13 @@ export default function InsightsPage() {
 
     // This week (Sun-Sat)
     const weekStart = new Date(now);
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
     const thisWeekLogs = logs.filter(l => {
       const d = new Date(l.logged_at || l.loggedAt || '');
       return d >= weekStart;
     });
     const thisWeekDrinks = thisWeekLogs.reduce((s, l) => s + getLogDrinks(l), 0);
-    const daysLeftInWeek = 6 - now.getDay();
+    const daysLeftInWeek = 6 - ((now.getDay() + 6) % 7);
 
     // This month
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -390,7 +391,7 @@ export default function InsightsPage() {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
     const weekStart = new Date(now);
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
 
     const catMap = new Map<string, number>();
     logs.forEach(l => {
@@ -422,7 +423,7 @@ export default function InsightsPage() {
     const { year, month } = heatmapMonth;
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    const startPad = firstDay.getDay();
+    const startPad = (firstDay.getDay() + 6) % 7;
 
     const dayMap = new Map<string, number>();
     logs.forEach((l) => {
@@ -629,9 +630,9 @@ export default function InsightsPage() {
 
         {/* This month */}
         <Card className="rounded-xl">
-          <CardContent className="py-4">
-            <div className="flex items-center gap-2">
-              <p className="text-3xl font-bold dark:text-white">{stats.thisMonthDrinks}</p>
+          <CardContent className="py-4 overflow-hidden">
+            <div className="flex items-center gap-2 min-w-0">
+              <p className="text-3xl font-bold dark:text-white truncate">{stats.thisMonthDrinks}</p>
               {stats.monthChange !== 0 && stats.lastMonthDrinksRaw > 0 && (
                 <span className={`flex items-center text-xs font-medium ${
                   stats.monthChange <= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500'
@@ -644,7 +645,7 @@ export default function InsightsPage() {
                 </span>
               )}
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">this month vs last</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">this month vs last</p>
           </CardContent>
         </Card>
 
@@ -699,27 +700,6 @@ export default function InsightsPage() {
             </div>
           )}
 
-          {/* This week pacing */}
-          <div className="mt-5 pt-4 border-t dark:border-gray-700">
-            <div className="flex items-baseline justify-between mb-2">
-              <p className="text-sm font-medium dark:text-white">
-                {stats.thisWeekDrinks} of {weeklyLimit} drinks used
-              </p>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {stats.daysLeftInWeek} days left
-              </span>
-            </div>
-            <div className="h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all ${
-                  stats.thisWeekDrinksRaw > weeklyLimit * 1.2 ? 'bg-red-500'
-                    : stats.thisWeekDrinksRaw > weeklyLimit ? 'bg-amber-500'
-                    : 'bg-green-500'
-                }`}
-                style={{ width: `${Math.min((stats.thisWeekDrinksRaw / weeklyLimit) * 100, 100)}%` }}
-              />
-            </div>
-          </div>
         </CardContent>
       </Card>
 
@@ -748,9 +728,9 @@ export default function InsightsPage() {
           {weeklyData.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
               {showTrend ? (
-                <LineChart data={trendData}>
+                <ComposedChart data={trendData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} className="opacity-30" />
-                  <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={Math.max(0, Math.floor(trendData.length / 8))} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={Math.max(0, Math.floor(trendData.length / 6))} axisLine={false} tickLine={false} angle={trendData.length > 8 ? -45 : 0} textAnchor={trendData.length > 8 ? 'end' : 'middle'} height={trendData.length > 8 ? 50 : 30} />
                   <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                   <RechartsTooltip content={<WeeklyTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
                   <Legend />
@@ -761,11 +741,11 @@ export default function InsightsPage() {
                   </Bar>
                   <Line dataKey="dailyAvg" name="Daily avg" stroke="#6366f1" strokeWidth={2} dot={false} />
                   <ReferenceLine y={weeklyLimit} stroke="#94a3b8" strokeDasharray="6 4" label={{ value: 'Your goal', position: 'right', fontSize: 10, fill: '#94a3b8' }} />
-                </LineChart>
+                </ComposedChart>
               ) : (
                 <BarChart data={weeklyData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} className="opacity-30" />
-                  <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={Math.max(0, Math.floor(weeklyData.length / 8))} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={Math.max(0, Math.floor(weeklyData.length / 6))} axisLine={false} tickLine={false} angle={weeklyData.length > 8 ? -45 : 0} textAnchor={weeklyData.length > 8 ? 'end' : 'middle'} height={weeklyData.length > 8 ? 50 : 30} />
                   <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                   <RechartsTooltip content={<WeeklyTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
                   <Bar dataKey="drinks" name="Weekly drinks" radius={[4, 4, 0, 0]}>
@@ -865,7 +845,7 @@ export default function InsightsPage() {
         <CardContent>
           {/* Day labels */}
           <div className="grid grid-cols-7 gap-1 mb-1">
-            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+            {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
               <div key={i} className="text-center text-xs text-gray-400 dark:text-gray-500">{d}</div>
             ))}
           </div>

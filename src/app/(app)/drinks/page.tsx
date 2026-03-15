@@ -16,6 +16,7 @@ import {
   getDryStreak,
   formatTime,
 } from '@/lib/drinks';
+import { displayUnits } from '@/lib/units-calculator';
 
 export default function DrinksPage() {
   const [logs, setLogs] = useState<DrinkLog[]>([]);
@@ -151,7 +152,17 @@ export default function DrinksPage() {
       {/* Dry Day Toggle */}
       <div className="flex items-center gap-3">
         <button
-          onClick={() => setIsDryDay(!isDryDay)}
+          onClick={() => {
+            if (!isDryDay && logs.length > 0) {
+              toast({
+                title: 'Drinks logged today',
+                description: `You have ${logs.length} drink${logs.length === 1 ? '' : 's'} logged today. Remove them first to mark as a dry day.`,
+                variant: 'destructive',
+              });
+              return;
+            }
+            setIsDryDay(!isDryDay);
+          }}
           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
             isDryDay ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
           }`}
@@ -196,7 +207,7 @@ export default function DrinksPage() {
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <p className={`text-2xl font-bold ${getUnitColor(todayUnits, dailyLimit)}`}>
-                {todayUnits.toFixed(1)}
+                {displayUnits(todayUnits)}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">units</p>
             </div>
@@ -213,7 +224,7 @@ export default function DrinksPage() {
           {/* Progress bar */}
           <div>
             <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
-              <span>{todayUnits.toFixed(1)} / {dailyLimit} units</span>
+              <span>{displayUnits(todayUnits)} / {dailyLimit} units</span>
               <span>{Math.round(progress)}%</span>
             </div>
             <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -278,7 +289,7 @@ export default function DrinksPage() {
                         dailyLimit
                       )} bg-gray-100 dark:bg-gray-700`}
                     >
-                      {(log.standard_units ?? log.standardUnits ?? 0).toFixed(1)}u
+                      {displayUnits(log.standard_units ?? log.standardUnits ?? 0)}u
                     </span>
                     <button
                       onClick={() => deleteDrink(log.id)}
