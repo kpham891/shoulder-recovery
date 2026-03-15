@@ -558,12 +558,11 @@ export default function InsightsPage() {
 
   function WeeklyTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
     if (!active || !payload?.length || !label) return null;
-    const weekOf = formatWeekLabel(label);
     const drinks = payload[0].value;
     return (
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 shadow-lg text-sm">
-        <p className="text-gray-600 dark:text-gray-300">
-          Week of {weekOf} · <span className="font-semibold dark:text-white">{drinks} drinks</span> · Goal: {weeklyLimit}
+      <div className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white shadow-xl">
+        <p>
+          {label} · <span className="font-semibold">{drinks} drinks</span> · Goal: {weeklyLimit}
         </p>
       </div>
     );
@@ -753,7 +752,7 @@ export default function InsightsPage() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} className="opacity-30" />
                   <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={Math.max(0, Math.floor(trendData.length / 8))} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <RechartsTooltip content={<WeeklyTooltip />} />
+                  <RechartsTooltip content={<WeeklyTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
                   <Legend />
                   <Bar dataKey="drinks" name="Weekly drinks" radius={[4, 4, 0, 0]}>
                     {trendData.map((entry, i) => (
@@ -768,7 +767,7 @@ export default function InsightsPage() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} className="opacity-30" />
                   <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={Math.max(0, Math.floor(weeklyData.length / 8))} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <RechartsTooltip content={<WeeklyTooltip />} />
+                  <RechartsTooltip content={<WeeklyTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
                   <Bar dataKey="drinks" name="Weekly drinks" radius={[4, 4, 0, 0]}>
                     {weeklyData.map((entry, i) => (
                       <Cell key={i} fill={entry.fill} />
