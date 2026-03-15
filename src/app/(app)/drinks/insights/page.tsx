@@ -859,12 +859,12 @@ export default function InsightsPage() {
                 className={`aspect-square rounded-sm flex items-center justify-center transition-transform ${
                   cell.padded
                     ? ''
-                    : `${getHeatColor(cell.drinks)} cursor-pointer hover:ring-2 hover:ring-blue-400 hover:ring-offset-1 dark:hover:ring-offset-gray-900 active:scale-95`
+                    : `${getHeatColor(cell.drinks)} cursor-pointer hover:ring-2 hover:ring-blue-400 hover:ring-offset-1 dark:hover:ring-offset-gray-900 active:scale-95${cell.key === getDateKey(new Date()) ? ' ring-2 ring-blue-500 dark:ring-blue-400' : ''}`
                 }`}
                 title={cell.padded ? '' : `${formatDateLabel(cell.key)}: ${cell.drinks.toFixed(1)} drinks`}
               >
                 {!cell.padded && (
-                  <span className={`text-xs font-medium ${getHeatTextColor(cell.drinks)}`}>
+                  <span className={`text-xs ${cell.key === getDateKey(new Date()) ? 'font-bold text-white' : `font-medium ${getHeatTextColor(cell.drinks)}`}`}>
                     {cell.day}
                   </span>
                 )}
