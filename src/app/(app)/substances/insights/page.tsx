@@ -124,7 +124,7 @@ export default function SubstanceInsightsPage() {
       }
     });
 
-    const substances = [...new Set(filteredLogs.map((l) => l.substance))];
+    const substances = Array.from(new Set(filteredLogs.map((l) => l.substance)));
     return {
       data: Object.entries(dayMap)
         .sort(([a], [b]) => a.localeCompare(b))
