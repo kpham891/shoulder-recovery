@@ -7,6 +7,7 @@ import {
   BarChart3,
   Heart,
   Home,
+  Leaf,
   LogOut,
   Settings,
   Wine,
@@ -16,11 +17,22 @@ import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 const navItems = [
-  { href: '/', label: 'Home', icon: Home },
-  { href: '/recovery', label: 'Shoulder', icon: Heart },
-  { href: '/drinks', label: 'Drinks', icon: Wine },
-  { href: '/insights', label: 'Insights', icon: BarChart3 },
+  { href: '/', label: 'Home', icon: Home, accent: 'blue' as const },
+  { href: '/recovery', label: 'Shoulder', icon: Heart, accent: 'blue' as const },
+  { href: '/drinks', label: 'Drinks', icon: Wine, accent: 'blue' as const },
+  { href: '/substances', label: 'Substances', icon: Leaf, accent: 'violet' as const },
+  { href: '/insights', label: 'Insights', icon: BarChart3, accent: 'blue' as const },
 ];
+
+const ACCENT_MOBILE = {
+  blue: 'text-blue-600 dark:text-blue-400',
+  violet: 'text-violet-600 dark:text-violet-400',
+};
+
+const ACCENT_DESKTOP = {
+  blue: 'bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400',
+  violet: 'bg-violet-50 text-violet-600 dark:bg-violet-900/50 dark:text-violet-400',
+};
 
 export function MainNav() {
   const pathname = usePathname();
@@ -66,7 +78,7 @@ export function MainNav() {
                 href={item.href}
                 className={cn(
                   'flex flex-col items-center gap-1 text-xs',
-                  active ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'
+                  active ? ACCENT_MOBILE[item.accent] : 'text-gray-500 dark:text-gray-400'
                 )}
               >
                 <Icon className="w-5 h-5" />
@@ -95,7 +107,7 @@ export function MainNav() {
                 className={cn(
                   'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
                   active
-                    ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400'
+                    ? ACCENT_DESKTOP[item.accent]
                     : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
                 )}
               >

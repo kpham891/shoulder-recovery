@@ -254,6 +254,26 @@ export interface LibraryDrink {
   units: number;
 }
 
+// ─── Substance Tracking Types ─────────────────────────────────────────
+
+export type SubstanceName = 'Cannabis' | 'MDMA' | 'Psilocybin' | 'Cocaine' | 'Ketamine' | 'Other';
+
+export interface SubstanceLog {
+  id: string;
+  userId?: string;
+  user_id?: string;
+  substance: SubstanceName;
+  method: string;
+  dose: string;
+  potency?: string;
+  intensity?: number; // 1-5
+  notes?: string;
+  loggedAt?: string;
+  logged_at?: string;
+  createdAt?: string;
+  created_at?: string;
+}
+
 // Helper type for activity allowance
 export interface AllowedActivities {
   cardio: CardioType[];
