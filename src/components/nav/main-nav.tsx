@@ -7,7 +7,6 @@ import {
   BarChart3,
   Heart,
   Home,
-  Leaf,
   LogOut,
   Settings,
   Wine,
@@ -20,18 +19,15 @@ const navItems = [
   { href: '/', label: 'Home', icon: Home, accent: 'blue' as const },
   { href: '/recovery', label: 'Shoulder', icon: Heart, accent: 'blue' as const },
   { href: '/drinks', label: 'Drinks', icon: Wine, accent: 'blue' as const },
-  { href: '/substances', label: 'Substances', icon: Leaf, accent: 'violet' as const },
   { href: '/insights', label: 'Insights', icon: BarChart3, accent: 'blue' as const },
 ];
 
 const ACCENT_MOBILE = {
   blue: 'text-blue-600 dark:text-blue-400',
-  violet: 'text-violet-600 dark:text-violet-400',
 };
 
 const ACCENT_DESKTOP = {
   blue: 'bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400',
-  violet: 'bg-violet-50 text-violet-600 dark:bg-violet-900/50 dark:text-violet-400',
 };
 
 export function MainNav() {

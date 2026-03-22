@@ -155,7 +155,7 @@ export default function SubstanceInsightsPage() {
     <div className="p-4 md:p-8 max-w-2xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Link href="/substances" className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+        <Link href="/drinks" className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <h1 className="text-xl font-bold dark:text-white">Substance Insights</h1>

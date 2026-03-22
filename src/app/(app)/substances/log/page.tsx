@@ -78,7 +78,7 @@ export default function LogSubstancePage() {
 
   function goBack() {
     if (step === 2) setStep(1);
-    else router.push('/substances');
+    else router.push('/drinks');
   }
 
   async function handleSubmit() {
@@ -111,7 +111,7 @@ export default function LogSubstancePage() {
     }
 
     toast({ title: 'Logged', description: `${substance} — ${activeDose} (${method})` });
-    router.push('/substances');
+    router.push('/drinks');
   }
 
   return (
