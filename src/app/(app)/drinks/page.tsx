@@ -78,7 +78,7 @@ export default function DrinksPage() {
   }
 
   const todayUnits = logs.reduce(
-    (sum, l) => sum + (l.standard_units ?? l.standardUnits ?? 0),
+    (sum, l) => sum + (l.standard_units ?? l.standardUnits ?? 0) * (l.quantity ?? 1),
     0
   );
   const todayCount = logs.length;

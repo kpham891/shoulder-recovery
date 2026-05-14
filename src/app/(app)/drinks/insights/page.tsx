@@ -563,7 +563,7 @@ export default function InsightsPage() {
     return (
       <div className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white shadow-xl">
         <p>
-          {label} · <span className="font-semibold">{drinks} drinks</span> · Goal: {weeklyLimit}
+          {label} · <span className="font-semibold">{drinks} units</span> · Goal: {weeklyLimit}
         </p>
       </div>
     );
@@ -728,7 +728,7 @@ export default function InsightsPage() {
           {weeklyData.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
               {showTrend ? (
-                <ComposedChart data={trendData}>
+                <ComposedChart data={trendData} margin={{ right: 16 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} className="opacity-30" />
                   <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={Math.max(0, Math.floor(trendData.length / 6))} axisLine={false} tickLine={false} angle={trendData.length > 8 ? -45 : 0} textAnchor={trendData.length > 8 ? 'end' : 'middle'} height={trendData.length > 8 ? 50 : 30} />
                   <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -740,10 +740,10 @@ export default function InsightsPage() {
                     ))}
                   </Bar>
                   <Line dataKey="dailyAvg" name="Daily avg" stroke="#6366f1" strokeWidth={2} dot={false} />
-                  <ReferenceLine y={weeklyLimit} stroke="#94a3b8" strokeDasharray="6 4" label={{ value: 'Your goal', position: 'right', fontSize: 10, fill: '#94a3b8' }} />
+                  <ReferenceLine y={weeklyLimit} stroke="#94a3b8" strokeDasharray="6 4" label={{ value: 'Goal', position: 'insideTopRight', fontSize: 10, fill: '#94a3b8' }} />
                 </ComposedChart>
               ) : (
-                <BarChart data={weeklyData}>
+                <BarChart data={weeklyData} margin={{ right: 16 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} className="opacity-30" />
                   <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={Math.max(0, Math.floor(weeklyData.length / 6))} axisLine={false} tickLine={false} angle={weeklyData.length > 8 ? -45 : 0} textAnchor={weeklyData.length > 8 ? 'end' : 'middle'} height={weeklyData.length > 8 ? 50 : 30} />
                   <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -753,7 +753,7 @@ export default function InsightsPage() {
                       <Cell key={i} fill={entry.fill} />
                     ))}
                   </Bar>
-                  <ReferenceLine y={weeklyLimit} stroke="#94a3b8" strokeDasharray="6 4" label={{ value: 'Your goal', position: 'right', fontSize: 10, fill: '#94a3b8' }} />
+                  <ReferenceLine y={weeklyLimit} stroke="#94a3b8" strokeDasharray="6 4" label={{ value: 'Goal', position: 'insideTopRight', fontSize: 10, fill: '#94a3b8' }} />
                 </BarChart>
               )}
             </ResponsiveContainer>
