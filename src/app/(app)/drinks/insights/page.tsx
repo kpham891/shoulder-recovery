@@ -417,6 +417,43 @@ export default function InsightsPage() {
     };
   }, [logs]);
 
+  // ─── Monthly YTD data ─────────────────────────────────────────────
+
+  const monthlyGoal = Math.round(weeklyLimit * (52 / 12) * 10) / 10;
+
+  const monthlyData = useMemo(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const curMonth = now.getMonth();
+    const mGoal = Math.round(weeklyLimit * (52 / 12) * 10) / 10;
+
+    const map = new Map<number, number>();
+    for (let m = 0; m <= curMonth; m++) map.set(m, 0);
+
+    logs.forEach((l) => {
+      const d = new Date(l.logged_at || l.loggedAt || '');
+      if (d.getFullYear() === year) {
+        const m = d.getMonth();
+        if (map.has(m)) map.set(m, (map.get(m) || 0) + getLogDrinks(l));
+      }
+    });
+
+    return Array.from(map.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([month, drinks]) => {
+        const rounded = Math.round(drinks * 10) / 10;
+        let fill = '#22c55e';
+        if (rounded > mGoal * 1.2) fill = '#ef4444';
+        else if (rounded > mGoal) fill = '#f59e0b';
+        return {
+          month,
+          label: new Date(year, month, 1).toLocaleDateString('en-US', { month: 'short' }),
+          drinks: rounded,
+          fill,
+        };
+      });
+  }, [logs, weeklyLimit]);
+
   // ─── Heatmap ──────────────────────────────────────────────────────
 
   const heatmapData = useMemo(() => {
@@ -555,7 +592,19 @@ export default function InsightsPage() {
     ? displayUnits(calculateUnits(editVolume, editAbv, editQuantity))
     : 0;
 
-  // ─── Custom tooltip for bar chart ─────────────────────────────────
+  // ─── Custom tooltips ──────────────────────────────────────────────
+
+  function MonthlyTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
+    if (!active || !payload?.length || !label) return null;
+    const units = payload[0].value;
+    return (
+      <div className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white shadow-xl">
+        <p>
+          {label} · <span className="font-semibold">{units} units</span> · Goal: {monthlyGoal}
+        </p>
+      </div>
+    );
+  }
 
   function WeeklyTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
     if (!active || !payload?.length || !label) return null;
@@ -660,7 +709,7 @@ export default function InsightsPage() {
 
       {/* ─── THIS YEAR ───────────────────────────────────────────── */}
       <SectionHeading>This year</SectionHeading>
-      <Card className="rounded-xl mb-10">
+      <Card className="rounded-xl mb-4">
         <CardContent className="py-5">
           {yearlyTarget ? (
             <>
@@ -700,6 +749,31 @@ export default function InsightsPage() {
             </div>
           )}
 
+        </CardContent>
+      </Card>
+
+      {/* Monthly YTD chart */}
+      <Card className="rounded-xl mb-10">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            {new Date().getFullYear()} · month by month
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={monthlyData} margin={{ right: 16 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} className="opacity-30" />
+              <XAxis dataKey="label" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+              <RechartsTooltip content={<MonthlyTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
+              <Bar dataKey="drinks" radius={[4, 4, 0, 0]}>
+                {monthlyData.map((entry, i) => (
+                  <Cell key={i} fill={entry.fill} />
+                ))}
+              </Bar>
+              <ReferenceLine y={monthlyGoal} stroke="#94a3b8" strokeDasharray="6 4" label={{ value: 'Goal', position: 'insideTopRight', fontSize: 10, fill: '#94a3b8' }} />
+            </BarChart>
+          </ResponsiveContainer>
         </CardContent>
       </Card>
 
