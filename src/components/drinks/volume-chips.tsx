@@ -1,6 +1,6 @@
 'use client';
 
-import { Input } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
 import { DrinkCategory } from '@/types';
 import { VOLUME_CHIPS } from '@/lib/drinks-library';
 
@@ -32,13 +32,13 @@ export function VolumeChips({ category, value, onChange }: VolumeChipsProps) {
           </button>
         ))}
       </div>
-      <Input
-        type="number"
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value) || 0)}
+      <NumberInput
+        value={value || null}
+        onChange={(v) => onChange(v ?? 0)}
         placeholder="Custom ml"
         className="w-28"
         data-testid="volume-manual-input"
+        min={0}
       />
     </div>
   );

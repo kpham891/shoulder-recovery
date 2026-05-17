@@ -14,6 +14,7 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
 import {
   ArrowLeft,
   ChevronLeft,
@@ -930,7 +931,7 @@ export default function InsightsPage() {
                       <div className="space-y-1">
                         <Label className="text-xs">ABV</Label>
                         <div className="relative w-28">
-                          <Input type="number" step="0.1" value={editAbv} onChange={(e) => setEditAbv(Number(e.target.value) || 0)} className="pr-8" />
+                          <NumberInput allowDecimal value={editAbv || null} onChange={(v) => setEditAbv(v ?? 0)} className="pr-8" min={0} max={100} />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">%</span>
                         </div>
                       </div>
