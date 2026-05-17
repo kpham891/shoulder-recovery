@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -263,13 +264,14 @@ export default function LogDrinkPage() {
               <div className="space-y-2">
                 <Label htmlFor="abv">ABV</Label>
                 <div className="relative w-28">
-                  <Input
+                  <NumberInput
                     id="abv"
-                    type="number"
-                    step="0.1"
-                    value={abvPercent}
-                    onChange={(e) => setAbvPercent(Number(e.target.value) || 0)}
+                    allowDecimal
+                    value={abvPercent || null}
+                    onChange={(v) => setAbvPercent(v ?? 0)}
                     className="pr-8"
+                    min={0}
+                    max={100}
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">%</span>
                 </div>

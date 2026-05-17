@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, Trash2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -122,46 +123,45 @@ export default function DrinkSettingsPage() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="weekly-limit">Weekly unit limit</Label>
-            <Input
+            <NumberInput
               id="weekly-limit"
-              type="number"
-              step="0.5"
-              value={weeklyLimit}
-              onChange={(e) => setWeeklyLimit(Number(e.target.value) || 0)}
+              allowDecimal
+              value={weeklyLimit || null}
+              onChange={(v) => setWeeklyLimit(v ?? 0)}
+              min={0}
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="daily-limit">Daily unit limit</Label>
-            <Input
+            <NumberInput
               id="daily-limit"
-              type="number"
-              step="0.5"
-              value={dailyLimit}
-              onChange={(e) => setDailyLimit(Number(e.target.value) || 0)}
+              allowDecimal
+              value={dailyLimit || null}
+              onChange={(v) => setDailyLimit(v ?? 0)}
+              min={0}
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="dry-days">Dry days per week target</Label>
-            <Input
+            <NumberInput
               id="dry-days"
-              type="number"
-              min="0"
-              max="7"
-              value={dryDaysTarget}
-              onChange={(e) => setDryDaysTarget(Number(e.target.value) || 0)}
+              value={dryDaysTarget || null}
+              onChange={(v) => setDryDaysTarget(v ?? 0)}
+              min={0}
+              max={7}
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="yearly-target">Year goal (optional)</Label>
-            <Input
+            <NumberInput
               id="yearly-target"
-              type="number"
               placeholder="e.g. 500"
-              value={yearlyTarget ?? ''}
-              onChange={(e) => setYearlyTarget(e.target.value ? Number(e.target.value) : null)}
+              value={yearlyTarget}
+              onChange={setYearlyTarget}
+              min={0}
             />
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Total standard drinks target for the year. Leave blank to skip.
