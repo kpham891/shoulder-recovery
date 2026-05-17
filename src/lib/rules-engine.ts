@@ -217,6 +217,35 @@ export function allowedActivities(profile: UserProfile, latestLog: DailyLog | nu
 }
 
 /**
+ * Return all rehab exercises appropriate for the current stage, ROM, and restrictions.
+ * Used both by rehabPlan (for auto-selection) and the library browser.
+ */
+export function getAvailableRehabExercises(
+  stage: RecoveryStage,
+  profile: UserProfile,
+  latestLog: DailyLog | null
+) {
+  const rehabExercises = getRehabExercises();
+  const currentFlexion = latestLog ? bucketToAngle(getLogFlexion(latestLog)) : 30;
+  const currentAbduction = latestLog ? bucketToAngle(getLogAbduction(latestLog)) : 30;
+  const currentPain = latestLog?.pain ?? 5;
+
+  return rehabExercises.filter(ex => {
+    if (ex.minFlexionAngle > currentFlexion) return false;
+    if (ex.minAbductionAngle > currentAbduction) return false;
+    if (ex.requiresOverhead && profile.restrictions.noOverhead) return false;
+    if (ex.requiresOverhead && currentFlexion < 120) return false;
+    if (ex.requiresShoulderLoading && profile.restrictions.inSling) return false;
+    if (ex.requiresExternalRotation &&
+        profile.restrictions.externalRotationLimit === 'severe') return false;
+    if (stage === 'acute' && ex.difficulty > 2) return false;
+    if (stage === 'early-rehab' && ex.difficulty > 3) return false;
+    if (currentPain >= 6 && ex.difficulty > 2) return false;
+    return true;
+  });
+}
+
+/**
  * Generate a rehab workout plan based on stage and current status
  */
 export function rehabPlan(
@@ -224,52 +253,24 @@ export function rehabPlan(
   profile: UserProfile,
   latestLog: DailyLog | null
 ): RehabWorkout {
-  const rehabExercises = getRehabExercises();
-  const selectedExercises: WorkoutExercise[] = [];
-
-  const currentFlexion = latestLog ? bucketToAngle(getLogFlexion(latestLog)) : 30;
-  const currentAbduction = latestLog ? bucketToAngle(getLogAbduction(latestLog)) : 30;
+  const filteredExercises = getAvailableRehabExercises(stage, profile, latestLog);
   const currentPain = latestLog?.pain ?? 5;
-
-  // Filter exercises that are appropriate for current ROM and limitations
-  const filteredExercises = rehabExercises.filter(ex => {
-    // Check ROM requirements
-    if (ex.minFlexionAngle > currentFlexion) return false;
-    if (ex.minAbductionAngle > currentAbduction) return false;
-
-    // Check if overhead is allowed
-    if (ex.requiresOverhead && profile.restrictions.noOverhead) return false;
-    if (ex.requiresOverhead && currentFlexion < 120) return false;
-
-    // Check if loading is appropriate
-    if (ex.requiresShoulderLoading && profile.restrictions.inSling) return false;
-
-    // Check external rotation
-    if (ex.requiresExternalRotation &&
-        profile.restrictions.externalRotationLimit === 'severe') return false;
-
-    // Difficulty filter based on stage and pain
-    if (stage === 'acute' && ex.difficulty > 2) return false;
-    if (stage === 'early-rehab' && ex.difficulty > 3) return false;
-    if (currentPain >= 6 && ex.difficulty > 2) return false;
-
-    return true;
-  });
+  const selectedExercises: WorkoutExercise[] = [];
 
   // Select exercises based on stage
   let exerciseCount: number;
   switch (stage) {
     case 'acute':
-      exerciseCount = 3;
-      break;
-    case 'early-rehab':
-      exerciseCount = 4;
-      break;
-    case 'strengthening':
       exerciseCount = 5;
       break;
-    case 'return-to-sport':
+    case 'early-rehab':
       exerciseCount = 6;
+      break;
+    case 'strengthening':
+      exerciseCount = 7;
+      break;
+    case 'return-to-sport':
+      exerciseCount = 8;
       break;
   }
 

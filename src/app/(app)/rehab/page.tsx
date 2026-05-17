@@ -6,11 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { Activity, Check, Clock, Info, Shield } from 'lucide-react';
+import { Activity, Check, ChevronDown, ChevronUp, Clock, Info, Plus, Shield, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { currentRecoveryStage, rehabPlan } from '@/lib/rules-engine';
-import type { UserProfile, DailyLog, RehabWorkout, WorkoutExercise } from '@/types';
+import { currentRecoveryStage, rehabPlan, getAvailableRehabExercises } from '@/lib/rules-engine';
+import type { UserProfile, DailyLog, RehabWorkout, WorkoutExercise, Exercise } from '@/types';
 
 export default function RehabPage() {
   const supabase = createClient();
@@ -21,6 +21,7 @@ export default function RehabPage() {
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showLibrary, setShowLibrary] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -73,6 +74,28 @@ export default function RehabPage() {
     setCompletedExercises(newSet);
   };
 
+  const addExercise = (exercise: Exercise) => {
+    if (!workout) return;
+    const we: WorkoutExercise = {
+      exercise,
+      sets: parseInt(exercise.sets?.split('-')[0] || '3'),
+      reps: exercise.reps ? parseInt(exercise.reps.split('-')[0] || '10') : undefined,
+      duration: exercise.duration,
+    };
+    setWorkout({ ...workout, exercises: [...workout.exercises, we] });
+  };
+
+  const removeExercise = (exerciseId: string) => {
+    if (!workout) return;
+    setWorkout({
+      ...workout,
+      exercises: workout.exercises.filter(we => we.exercise.id !== exerciseId),
+    });
+    const newSet = new Set(completedExercises);
+    newSet.delete(exerciseId);
+    setCompletedExercises(newSet);
+  };
+
   const handleComplete = async () => {
     if (!workout) return;
     setSaving(true);
@@ -122,11 +145,17 @@ export default function RehabPage() {
     );
   }
 
+  const stage = profile ? currentRecoveryStage(profile, logs) : 'early-rehab';
+  const latestLog = logs[0] || null;
+
   const progress = workout
     ? (completedExercises.size / workout.exercises.length) * 100
     : 0;
 
-  const stage = profile ? currentRecoveryStage(profile, logs) : 'early-rehab';
+  const sessionIds = new Set(workout?.exercises.map(we => we.exercise.id) ?? []);
+  const libraryExercises = profile
+    ? getAvailableRehabExercises(stage, profile, latestLog).filter(ex => !sessionIds.has(ex.id))
+    : [];
 
   return (
     <div className="p-4 md:p-8 max-w-2xl mx-auto">
@@ -213,9 +242,18 @@ export default function RehabPage() {
                           {we.exercise.instructions}
                         </p>
                       </div>
-                      {isCompleted && (
-                        <Check className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
-                      )}
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {isCompleted && (
+                          <Check className="w-5 h-5 text-green-600 dark:text-green-400" />
+                        )}
+                        <button
+                          onClick={() => removeExercise(we.exercise.id)}
+                          className="p-1 rounded text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                          aria-label="Remove exercise"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -236,6 +274,57 @@ export default function RehabPage() {
           </div>
         </>
       )}
+
+      {/* Exercise Library */}
+      <div className="mt-6">
+        <button
+          onClick={() => setShowLibrary(v => !v)}
+          className="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-sm font-medium dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        >
+          <span className="flex items-center gap-2">
+            <Plus className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            Browse Exercise Library ({libraryExercises.length} available)
+          </span>
+          {showLibrary ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </button>
+
+        {showLibrary && (
+          <div className="mt-3 space-y-3">
+            {libraryExercises.length === 0 ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+                All available exercises are already in your session.
+              </p>
+            ) : (
+              libraryExercises.map(ex => (
+                <Card key={ex.id} className="border-dashed">
+                  <CardContent className="py-3">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium dark:text-white">{ex.name}</p>
+                        <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">
+                          {ex.sets && `${ex.sets} sets`}
+                          {ex.reps && ` × ${ex.reps} reps`}
+                          {ex.duration && ` × ${ex.duration}`}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                          {ex.instructions}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => addExercise(ex)}
+                        className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
+                      >
+                        <Plus className="w-3 h-3" />
+                        Add
+                      </button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Tips */}
       <Card className="mt-6">
