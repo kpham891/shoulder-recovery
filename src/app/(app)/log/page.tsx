@@ -9,18 +9,13 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { NumberInput } from '@/components/ui/number-input';
+import { BottomSheetPicker } from '@/components/ui/bottom-sheet-picker';
 import { Calendar, Check, Flame } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { getStreak, formatDateShort, getPainColor, getPainBgColor } from '@/lib/utils';
-import type { DailyLog, FlexionBucket, AbductionBucket, BehindBackReach } from '@/types';
+import type { DailyLog, BehindBackReach } from '@/types';
 
 export default function LogPage() {
   const router = useRouter();
@@ -37,8 +32,8 @@ export default function LogPage() {
   const [pain, setPain] = useState([5]);
   const [instability, setInstability] = useState([3]);
   const [sleepImpact, setSleepImpact] = useState([3]);
-  const [flexionBucket, setFlexionBucket] = useState<FlexionBucket>('90-120');
-  const [abductionBucket, setAbductionBucket] = useState<AbductionBucket>('60-90');
+  const [flexionDegrees, setFlexionDegrees] = useState<number | null>(null);
+  const [abductionDegrees, setAbductionDegrees] = useState<number | null>(null);
   const [behindBack, setBehindBack] = useState<BehindBackReach>('waistband');
   const [slingWorn, setSlingWorn] = useState(false);
   const [didRehab, setDidRehab] = useState(false);
@@ -89,8 +84,8 @@ export default function LogPage() {
         pain: pain[0],
         instability: instability[0],
         sleep_impact: sleepImpact[0],
-        flexion_bucket: flexionBucket,
-        abduction_bucket: abductionBucket,
+        flexion_degrees: flexionDegrees,
+        abduction_degrees: abductionDegrees,
         behind_back_reach: behindBack,
         sling_worn: slingWorn,
         did_rehab: didRehab,
@@ -255,52 +250,51 @@ export default function LogPage() {
 
             {/* ROM - Flexion */}
             <div className="space-y-2">
-              <Label>Can raise arm forward to:</Label>
-              <Select value={flexionBucket} onValueChange={(v) => setFlexionBucket(v as FlexionBucket)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="<60">Less than 60°</SelectItem>
-                  <SelectItem value="60-90">60° - 90°</SelectItem>
-                  <SelectItem value="90-120">90° - 120°</SelectItem>
-                  <SelectItem value="120-150">120° - 150°</SelectItem>
-                  <SelectItem value="150+">More than 150°</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label>Forward flexion (degrees)</Label>
+              <p className="text-xs text-muted-foreground">Enter your PT-measured angle, or your best estimate</p>
+              <div className="relative w-32">
+                <NumberInput
+                  value={flexionDegrees}
+                  onChange={setFlexionDegrees}
+                  placeholder="e.g. 120"
+                  min={0}
+                  max={180}
+                  className="pr-8"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">°</span>
+              </div>
             </div>
 
             {/* ROM - Abduction */}
             <div className="space-y-2">
-              <Label>Can raise arm to side to:</Label>
-              <Select value={abductionBucket} onValueChange={(v) => setAbductionBucket(v as AbductionBucket)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="<60">Less than 60°</SelectItem>
-                  <SelectItem value="60-90">60° - 90°</SelectItem>
-                  <SelectItem value="90-120">90° - 120°</SelectItem>
-                  <SelectItem value="120-150">120° - 150°</SelectItem>
-                  <SelectItem value="150+">More than 150°</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label>Abduction — arm to side (degrees)</Label>
+              <div className="relative w-32">
+                <NumberInput
+                  value={abductionDegrees}
+                  onChange={setAbductionDegrees}
+                  placeholder="e.g. 90"
+                  min={0}
+                  max={180}
+                  className="pr-8"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">°</span>
+              </div>
             </div>
 
             {/* ROM - Behind back */}
             <div className="space-y-2">
               <Label>Can reach behind back to:</Label>
-              <Select value={behindBack} onValueChange={(v) => setBehindBack(v as BehindBackReach)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="cant">Can&apos;t reach</SelectItem>
-                  <SelectItem value="waistband">Waistband</SelectItem>
-                  <SelectItem value="mid-back">Mid-back</SelectItem>
-                  <SelectItem value="shoulder-blade">Shoulder blade</SelectItem>
-                </SelectContent>
-              </Select>
+              <BottomSheetPicker
+                label="Reach behind back"
+                value={behindBack}
+                onValueChange={(v) => setBehindBack(v as BehindBackReach)}
+                options={[
+                  { value: 'cant', label: "Can't reach" },
+                  { value: 'waistband', label: 'Waistband' },
+                  { value: 'mid-back', label: 'Mid-back' },
+                  { value: 'shoulder-blade', label: 'Shoulder blade' },
+                ]}
+              />
             </div>
 
             {/* Activities */}

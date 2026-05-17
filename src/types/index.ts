@@ -82,8 +82,12 @@ export interface DailyLog {
   sleep_impact?: number;
   flexionBucket?: FlexionBucket;
   flexion_bucket?: FlexionBucket;
+  flexionDegrees?: number | null;
+  flexion_degrees?: number | null;
   abductionBucket?: AbductionBucket;
   abduction_bucket?: AbductionBucket;
+  abductionDegrees?: number | null;
+  abduction_degrees?: number | null;
   behindBackReach?: BehindBackReach;
   behind_back_reach?: BehindBackReach;
   slingWorn?: boolean;
