@@ -148,6 +148,17 @@ export default function CombinedInsightsPage() {
   const dryDays30d = 30 - new Set(monthlyLogs.map(l => getDateKey(new Date(l.logged_at || l.loggedAt || '')))).size;
   const dryStreak = getDryStreak(drinkLogs);
 
+  // YTD drink analytics
+  const ytdDrinkLogs = drinkLogs.filter(l => new Date(l.logged_at || l.loggedAt || '').getTime() >= yearStart.getTime());
+  const ytdTotalDrinks = ytdDrinkLogs.reduce((s, l) => s + getLogDrinks(l), 0);
+  const ytdDrinkDays = new Set(ytdDrinkLogs.map(l => getDateKey(new Date(l.logged_at || l.loggedAt || '')))).size;
+  const ytdDryDays = daysElapsed - ytdDrinkDays;
+  const weeksElapsed = daysElapsed / 7;
+  const ytdWeeklyAvg = weeksElapsed > 0 ? ytdTotalDrinks / weeksElapsed : 0;
+  const yearlyTarget = drinkGoal?.yearly_drink_target ?? drinkGoal?.yearlyDrinkTarget ?? null;
+  const ytdTargetPct = yearlyTarget && yearlyTarget > 0 ? Math.round((ytdTotalDrinks / yearlyTarget) * 100) : null;
+  const yearPct = Math.round((daysElapsed / 365) * 100);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -355,6 +366,46 @@ export default function CombinedInsightsPage() {
               </CardContent>
             </Card>
           </div>
+
+          {/* YTD drinks summary */}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="text-lg">This Year (YTD)</CardTitle>
+              <CardDescription>{new Date().getFullYear()} · {daysElapsed} days elapsed</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Drinks</p>
+                  <p className="text-2xl font-bold dark:text-white">{displayUnits(ytdTotalDrinks)}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">std drinks</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Weekly Avg</p>
+                  <p className="text-2xl font-bold dark:text-white">{displayUnits(ytdWeeklyAvg)}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">/ {weeklyLimit} limit</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Dry Days</p>
+                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">{ytdDryDays}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">of {daysElapsed} days</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    {yearlyTarget ? 'vs Target' : 'Year %'}
+                  </p>
+                  <p className={`text-2xl font-bold ${yearlyTarget && ytdTargetPct !== null && ytdTargetPct > yearPct ? 'text-red-500' : 'text-green-600 dark:text-green-400'}`}>
+                    {yearlyTarget && ytdTargetPct !== null ? `${ytdTargetPct}%` : `${yearPct}%`}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {yearlyTarget
+                      ? `of ${yearlyTarget} target · year ${yearPct}%`
+                      : 'of year elapsed'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Daily drinks chart (last 30 days) */}
           <Card className="mb-6">
