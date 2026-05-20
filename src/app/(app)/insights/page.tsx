@@ -94,6 +94,22 @@ export default function CombinedInsightsPage() {
       (oldLogs.reduce((s, l) => s + l.pain, 0) / oldLogs.length)
     : 0;
 
+  // YTD shoulder analytics
+  const yearStart = new Date(new Date().getFullYear(), 0, 1);
+  const ytdLogs = shoulderLogs.filter(l => new Date(l.date + 'T12:00:00') >= yearStart);
+  const ytdAvgPain = ytdLogs.length > 0
+    ? ytdLogs.reduce((s, l) => s + l.pain, 0) / ytdLogs.length
+    : 0;
+  const ytdLowPainDays = ytdLogs.filter(l => l.pain <= 3).length;
+  const daysElapsed = Math.floor((Date.now() - yearStart.getTime()) / 86400000) + 1;
+  const ytdConsistency = daysElapsed > 0 ? Math.round((ytdLogs.length / daysElapsed) * 100) : 0;
+  const ytdFirstHalf = ytdLogs.slice(0, Math.ceil(ytdLogs.length / 2));
+  const ytdSecondHalf = ytdLogs.slice(Math.ceil(ytdLogs.length / 2));
+  const ytdPainTrend = ytdFirstHalf.length > 0 && ytdSecondHalf.length > 0
+    ? (ytdSecondHalf.reduce((s, l) => s + l.pain, 0) / ytdSecondHalf.length) -
+      (ytdFirstHalf.reduce((s, l) => s + l.pain, 0) / ytdFirstHalf.length)
+    : 0;
+
   // Drink analytics
   const dailyLimit = drinkGoal?.daily_unit_limit ?? drinkGoal?.dailyUnitLimit ?? 2;
   const weeklyLimit = drinkGoal?.weekly_unit_limit ?? drinkGoal?.weeklyUnitLimit ?? 14;
@@ -192,6 +208,49 @@ export default function CombinedInsightsPage() {
               </CardContent>
             </Card>
           </div>
+
+          {/* YTD summary */}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="text-lg">This Year (YTD)</CardTitle>
+              <CardDescription>{new Date().getFullYear()} · {daysElapsed} days elapsed</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Logs</p>
+                  <p className="text-2xl font-bold dark:text-white">{ytdLogs.length}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">entries</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Avg Pain</p>
+                  <div className="flex items-center gap-1">
+                    <span className={`text-2xl font-bold ${getPainColor(ytdAvgPain)}`}>
+                      {ytdLogs.length > 0 ? ytdAvgPain.toFixed(1) : '—'}
+                    </span>
+                    {ytdLogs.length > 1 && (
+                      <span className={ytdPainTrend < 0 ? 'text-green-600' : 'text-red-500'}>
+                        {ytdPainTrend < 0
+                          ? <TrendingDown className="w-4 h-4" />
+                          : <TrendingUp className="w-4 h-4" />}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">/ 10</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Low-Pain Days</p>
+                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">{ytdLowPainDays}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">pain ≤ 3</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Consistency</p>
+                  <p className="text-2xl font-bold dark:text-white">{ytdConsistency}%</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">days logged</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Pain chart */}
           <Card className="mb-6">
